@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import API_BASE_URL from '../config/api';
 
 const Dashboard = () => {
     const [stats, setStats] = useState({
@@ -24,7 +25,7 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
         try {
             // Fetch tenants
-            const response = await fetch('http://localhost:5002/api/admin/tenants', {
+            const response = await fetch(`${API_BASE_URL}/api/admin/tenants`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
             });
             const result = await response.json();
@@ -33,7 +34,7 @@ const Dashboard = () => {
                 const activeTenants = tenants.filter(t => t.status === 'active').length;
                 
                 // Fetch stores
-                const storeResponse = await fetch('http://localhost:5002/api/admin/stores', {
+                const storeResponse = await fetch(`${API_BASE_URL}/api/admin/stores`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
                 });
                 const storeResult = await storeResponse.json();
