@@ -64,3 +64,13 @@ export const adminPanelAPI = {
     togglePanel: (storeId, panelType, is_enabled) => 
         apiRequest(`/api/admin/stores/${storeId}/panels/${panelType}/toggle`, 'PUT', { is_enabled }),
 };
+
+// Admin Pricing Plans (publish flow — domain + hosting + payment)
+export const adminPricingAPI = {
+    getAll: () => apiRequest('/api/admin/pricing-plans'),
+    update: (id, data) => apiRequest(`/api/admin/pricing-plans/${id}`, 'PUT', data),
+};
+
+export const adminTermsAPI = {
+    getAcceptances: () => apiRequest('/api/admin/terms-acceptances'),
+};

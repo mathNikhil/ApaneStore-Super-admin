@@ -35,6 +35,14 @@ const Sidebar = () => {
                     <span style={styles.icon}>🏪</span>
                     <span>Stores</span>
                 </Link>
+                <Link to="/pricing-plans" style={{...styles.navLink, ...styles[isActive('/pricing-plans')]}}>
+                    <span style={styles.icon}>💳</span>
+                    <span>Pricing Plans</span>
+                </Link>
+                <Link to="/terms-acceptances" style={{...styles.navLink, ...styles[isActive('/terms-acceptances')]}}>
+                    <span style={styles.icon}>📋</span>
+                    <span>Terms Acceptances</span>
+                </Link>
             </nav>
 
             <button onClick={handleLogout} style={styles.logoutBtn}>

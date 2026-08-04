@@ -6,6 +6,8 @@ import Tenants from './pages/Tenants';
 import TenantDetail from './pages/TenantDetail';
 import Stores from './pages/Stores';
 import StoreDetail from './pages/StoreDetail';
+import PricingPlans from './pages/PricingPlans';
+import TermsAcceptances from './pages/TermsAcceptances';
 
 const App = () => {
     const isAuthenticated = !!localStorage.getItem('adminToken');
@@ -33,6 +35,14 @@ const App = () => {
                 <Route 
                     path="/stores/:id" 
                     element={isAuthenticated ? <StoreDetail /> : <Navigate to="/login" />} 
+                />
+                <Route 
+                    path="/pricing-plans" 
+                    element={isAuthenticated ? <PricingPlans /> : <Navigate to="/login" />} 
+                />
+                <Route 
+                    path="/terms-acceptances" 
+                    element={isAuthenticated ? <TermsAcceptances /> : <Navigate to="/login" />} 
                 />
                 <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>

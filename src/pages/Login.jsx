@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { adminAuthAPI } from '../services/adminApi';
 
 const Login = () => {
@@ -7,7 +6,6 @@ const Login = () => {
     const [password, setPassword] = useState('Admin@123');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,14 +17,17 @@ const Login = () => {
             if (result.success) {
                 localStorage.setItem('adminToken', result.data.token);
                 localStorage.setItem('adminUser', JSON.stringify(result.data.admin));
-                navigate('/dashboard');
+                // Full page redirect instead of client-side navigation —
+                // guarantees the app re-checks login status fresh.
+                window.location.href = '/dashboard';
             } else {
                 setError(result.error || 'Login failed');
+                setLoading(false);
             }
         } catch (err) {
             setError(err.message || 'Something went wrong');
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
