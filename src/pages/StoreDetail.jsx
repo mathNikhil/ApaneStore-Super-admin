@@ -128,7 +128,7 @@ const StoreDetail = () => {
                         <div>
                             <div style={styles.infoLabel}>Store URL</div>
                             <div style={styles.infoValue}>
-                                <a href="#" style={styles.url}>https://{store.subdomain}.apnaestore.com</a>
+                                <a href="#" style={styles.url}>https://{store.subdomain}.aapnaestore.com</a>
                             </div>
                         </div>
                         <div>

@@ -88,7 +88,7 @@ const Stores = () => {
                                                     {store.tenant_name}
                                                 </a>
                                             </td>
-                                            <td>{store.subdomain}.apnaestore.com</td>
+                                            <td>{store.subdomain}.aapnaestore.com</td>
                                             <td><span style={styles.panelEnabled}>✅</span></td>
                                             <td>
                                                 <span style={permissions.production ? styles.panelEnabled : styles.panelDisabled}>

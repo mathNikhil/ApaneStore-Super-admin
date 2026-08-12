@@ -1,7 +1,7 @@
 {
-  "name": "apnaestore-super-admin",
+  "name": "aapnaestore-super-admin",
   "version": "1.0.0",
-  "description": "Super Admin Dashboard for ApnaEstore",
+  "description": "Super Admin Dashboard for Aapna eStore",
   "type": "module",
   "scripts": {
     "dev": "vite --port 3001",

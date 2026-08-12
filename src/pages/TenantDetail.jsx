@@ -100,7 +100,7 @@ const TenantDetail = () => {
                     {tenant.stores?.map(store => (
                         <div key={store.id} style={styles.storeCard} onClick={() => navigate(`/stores/${store.id}`)}>
                             <div style={styles.storeName}>{store.store_name}</div>
-                            <div style={styles.storeUrl}>🔗 {store.subdomain}.apnaestore.com</div>
+                            <div style={styles.storeUrl}>🔗 {store.subdomain}.aapnaestore.com</div>
                             <div style={styles.storeStatus}>
                                 <span style={{
                                     ...styles.statusBadge,

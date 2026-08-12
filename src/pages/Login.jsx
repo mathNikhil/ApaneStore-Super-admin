@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { adminAuthAPI } from '../services/adminApi';
 
 const Login = () => {
-    const [email, setEmail] = useState('admin@apnaestore.com');
+    const [email, setEmail] = useState('admin@aapnaestore.com');
     const [password, setPassword] = useState('Admin@123');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -35,7 +35,7 @@ const Login = () => {
             <div style={styles.card}>
                 <div style={styles.logo}>🛡️</div>
                 <h1 style={styles.title}>Super Admin</h1>
-                <p style={styles.subtitle}>Manage ApnaEstore Platform</p>
+                <p style={styles.subtitle}>Manage Aapna eStore Platform</p>
 
                 {error && <div style={styles.error}>{error}</div>}
 
@@ -68,7 +68,7 @@ const Login = () => {
                 </form>
 
                 <div style={styles.footer}>
-                    <small>Default: admin@apnaestore.com / Admin@123</small>
+                    <small>Default: admin@aapnaestore.com / Admin@123</small>
                 </div>
             </div>
         </div>
