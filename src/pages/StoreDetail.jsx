@@ -9,6 +9,11 @@ const StoreDetail = () => {
     const [panels, setPanels] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [trialDays, setTrialDays] = useState(3);
+    const [trialLoading, setTrialLoading] = useState(false);
+    const [extensionRequests, setExtensionRequests] = useState([]);
+    const [extDays, setExtDays] = useState({});
+    const [extLoading, setExtLoading] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,13 +27,20 @@ const StoreDetail = () => {
 
     const fetchStoreDetails = async () => {
         try {
-            const [storeResult, panelResult] = await Promise.all([
+            const token = localStorage.getItem('adminToken');
+            const API = 'https://api.aapnaestore.com';
+            const [storeResult, panelResult, extResult] = await Promise.all([
                 adminStoreAPI.getById(id),
-                adminPanelAPI.getStorePanels(id)
+                adminPanelAPI.getStorePanels(id),
+                fetch(`${API}/api/admin/trial/extension-requests`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }).then(r => r.json()).catch(() => ({ success: false, data: [] }))
             ]);
-            
             if (storeResult.success) setStore(storeResult.data);
             if (panelResult.success) setPanels(panelResult.data);
+            if (extResult.success) {
+                setExtensionRequests(extResult.data.filter(r => String(r.store_id) === String(id)));
+            }
         } catch (error) {
             console.error('Error fetching store details:', error);
         } finally {
@@ -57,6 +69,67 @@ const StoreDetail = () => {
         } finally {
             setSaving(false);
         }
+    };
+
+    const handleEnableTrial = async () => {
+        if (store.status !== 'draft') {
+            alert('Trial can only be enabled for draft stores. Published stores follow their paid subscription lifecycle.');
+            return;
+        }
+        if (!window.confirm(`Enable ${trialDays}-day trial for "${store.store_name}"? This will make the store live immediately.`)) return;
+        setTrialLoading(true);
+        try {
+            const token = localStorage.getItem('adminToken');
+            const res = await fetch(`https://api.aapnaestore.com/api/admin/stores/${id}/trial/enable`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ days: trialDays })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(`✅ Trial enabled for  days! Tenant must go through the publish flow to activate it.`);
+                fetchStoreDetails();
+            } else {
+                alert('❌ ' + (data.error || 'Failed to enable trial'));
+            }
+        } catch (e) {
+            alert('❌ Error enabling trial');
+        } finally {
+            setTrialLoading(false);
+        }
+    };
+
+    const handleAcceptExtension = async (requestId) => {
+        const days = extDays[requestId] || 3;
+        if (!window.confirm(`Grant ${days} day extension?`)) return;
+        setExtLoading(prev => ({ ...prev, [requestId]: true }));
+        try {
+            const token = localStorage.getItem('adminToken');
+            const res = await fetch(`https://api.aapnaestore.com/api/admin/trial/extension-requests/${requestId}/accept`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ daysGranted: days })
+            });
+            const data = await res.json();
+            if (data.success) { alert('✅ Extension granted!'); fetchStoreDetails(); }
+            else alert('❌ ' + (data.error || 'Failed'));
+        } catch (e) { alert('❌ Error'); }
+        finally { setExtLoading(prev => ({ ...prev, [requestId]: false })); }
+    };
+
+    const handleRejectExtension = async (requestId) => {
+        if (!window.confirm('Reject this extension request?')) return;
+        setExtLoading(prev => ({ ...prev, [requestId]: true }));
+        try {
+            const token = localStorage.getItem('adminToken');
+            const res = await fetch(`https://api.aapnaestore.com/api/admin/trial/extension-requests/${requestId}/reject`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            if (data.success) { alert('✅ Rejected.'); fetchStoreDetails(); }
+        } catch (e) { alert('❌ Error'); }
+        finally { setExtLoading(prev => ({ ...prev, [requestId]: false })); }
     };
 
     if (loading) {
@@ -219,6 +292,104 @@ const StoreDetail = () => {
                                 </div>
                             ))}
                         </div>
+                    </div>
+
+                    {/* Trial Management */}
+                    <div style={styles.panelSection}>
+                        <h4>🧪 Trial Management</h4>
+
+                        {/* Enable Trial — draft stores only */}
+                        <div style={{ background: '#f8f9fa', borderRadius: '12px', padding: '16px', marginTop: '12px' }}>
+                            <div style={{ fontWeight: '600', fontSize: '14px', color: '#1a1a2e', marginBottom: '6px' }}>
+                                Enable Trial for this Store
+                                {store.status !== 'draft' && (
+                                    <span style={{ marginLeft: '8px', fontSize: '11px', color: '#e74c3c', fontWeight: '400' }}>
+                                        ⚠️ Only available for draft stores — published stores have their own paid subscription
+                                    </span>
+                                )}
+                                {store.trial_used && store.status === 'draft' && (
+                                    <span style={{ marginLeft: '8px', fontSize: '11px', color: '#f39c12', fontWeight: '400' }}>
+                                        ⚠️ Trial already used for this tenant
+                                    </span>
+                                )}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginTop: '10px' }}>
+                                <label style={{ fontSize: '13px', color: '#556067' }}>Days:</label>
+                                <input
+                                    type="number" min="1" max="30"
+                                    value={trialDays}
+                                    onChange={e => setTrialDays(parseInt(e.target.value) || 3)}
+                                    disabled={store.status !== 'draft'}
+                                    style={{ width: '70px', padding: '6px 10px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '14px', opacity: store.status !== 'draft' ? 0.5 : 1 }}
+                                />
+                                <button
+                                    onClick={handleEnableTrial}
+                                    disabled={trialLoading || store.status !== 'draft'}
+                                    style={{
+                                        padding: '8px 20px',
+                                        background: store.status === 'draft' ? '#25D366' : '#e0e0e0',
+                                        color: store.status === 'draft' ? '#fff' : '#999',
+                                        border: 'none', borderRadius: '8px',
+                                        fontWeight: '600',
+                                        cursor: store.status === 'draft' ? 'pointer' : 'not-allowed',
+                                        fontSize: '13px'
+                                    }}
+                                >
+                                    {trialLoading ? 'Enabling...' : store.status === 'draft' ? '▶ Enable Trial' : '🔒 Not Available'}
+                                </button>
+                                <span style={{ fontSize: '12px', color: '#8e9eab' }}>
+                                    {store.status === 'published' ? 'Unpublish the store first to enable a trial.' : 'Store will go live immediately for the selected days.'}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Extension Requests */}
+                        {extensionRequests.length > 0 && (
+                            <div style={{ marginTop: '16px' }}>
+                                <div style={{ fontWeight: '600', fontSize: '14px', color: '#1a1a2e', marginBottom: '8px' }}>
+                                    Trial Extension Requests
+                                </div>
+                                {extensionRequests.map(req => (
+                                    <div key={req.id} style={{ background: '#fff', border: '1px solid #e0e3e6', borderRadius: '10px', padding: '14px', marginBottom: '8px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
+                                            <div>
+                                                <div style={{ fontSize: '13px', color: '#1a1a2e', fontWeight: '600' }}>{req.company_name}</div>
+                                                <div style={{ fontSize: '12px', color: '#8e9eab', marginTop: '2px' }}>
+                                                    Requested: {req.days_requested} days • {new Date(req.created_at).toLocaleDateString('en-IN')}
+                                                </div>
+                                                {req.reason && <div style={{ fontSize: '12px', color: '#556067', marginTop: '4px' }}>Reason: {req.reason}</div>}
+                                            </div>
+                                            <span style={{
+                                                padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600',
+                                                background: req.status === 'pending' ? 'rgba(243,156,18,0.15)' : req.status === 'accepted' ? 'rgba(46,213,115,0.15)' : 'rgba(231,76,60,0.15)',
+                                                color: req.status === 'pending' ? '#f39c12' : req.status === 'accepted' ? '#2ecc71' : '#e74c3c'
+                                            }}>
+                                                {req.status.toUpperCase()}
+                                            </span>
+                                        </div>
+                                        {req.status === 'pending' && (
+                                            <div style={{ display: 'flex', gap: '8px', marginTop: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                                <label style={{ fontSize: '12px', color: '#556067' }}>Grant days:</label>
+                                                <input
+                                                    type="number" min="1" max="30"
+                                                    value={extDays[req.id] || 3}
+                                                    onChange={e => setExtDays(prev => ({ ...prev, [req.id]: parseInt(e.target.value) || 3 }))}
+                                                    style={{ width: '60px', padding: '4px 8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px' }}
+                                                />
+                                                <button onClick={() => handleAcceptExtension(req.id)} disabled={extLoading[req.id]}
+                                                    style={{ padding: '6px 14px', background: '#25D366', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>
+                                                    {extLoading[req.id] ? '...' : '✅ Accept'}
+                                                </button>
+                                                <button onClick={() => handleRejectExtension(req.id)} disabled={extLoading[req.id]}
+                                                    style={{ padding: '6px 14px', background: '#e74c3c', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>
+                                                    {extLoading[req.id] ? '...' : '❌ Reject'}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Error Logs */}
