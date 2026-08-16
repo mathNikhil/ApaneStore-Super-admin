@@ -9,6 +9,7 @@ const StoreDetail = () => {
     const [panels, setPanels] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [storage, setStorage] = useState(null);
     const [trialDays, setTrialDays] = useState(3);
     const [trialLoading, setTrialLoading] = useState(false);
     const [extensionRequests, setExtensionRequests] = useState([]);
@@ -41,6 +42,11 @@ const StoreDetail = () => {
             if (extResult.success) {
                 setExtensionRequests(extResult.data.filter(r => String(r.store_id) === String(id)));
             }
+            // Fetch storage info
+            const storageRes = await fetch(`https://api.aapnaestore.com/api/admin/stores/${id}/storage`, {
+                headers: { Authorization: `Bearer ${token}` }
+            }).then(r => r.json()).catch(() => null);
+            if (storageRes?.success) setStorage(storageRes.data);
         } catch (error) {
             console.error('Error fetching store details:', error);
         } finally {
@@ -292,6 +298,45 @@ const StoreDetail = () => {
                                 </div>
                             ))}
                         </div>
+                    </div>
+
+                    {/* Storage Usage */}
+                    <div style={styles.panelSection}>
+                        <h4>💾 Storage Usage</h4>
+                        {storage ? (
+                            <div style={{ marginTop: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                    <span style={{ fontSize: '13px', color: '#556067' }}>
+                                        {storage.usedMB}MB used of {storage.limitMB}MB
+                                    </span>
+                                    <span style={{ fontSize: '13px', fontWeight: '600',
+                                        color: storage.full ? '#e74c3c' : storage.warning ? '#f39c12' : '#2ecc71' }}>
+                                        {storage.percentage}%
+                                    </span>
+                                </div>
+                                <div style={{ width: '100%', height: '8px', background: '#f0f2f5', borderRadius: '4px', overflow: 'hidden' }}>
+                                    <div style={{
+                                        height: '100%',
+                                        width: `${Math.min(storage.percentage, 100)}%`,
+                                        background: storage.full ? '#e74c3c' : storage.warning ? '#f39c12' : '#2ecc71',
+                                        borderRadius: '4px',
+                                        transition: 'width 0.5s'
+                                    }} />
+                                </div>
+                                {storage.warning && !storage.full && (
+                                    <p style={{ fontSize: '12px', color: '#f39c12', marginTop: '6px' }}>
+                                        ⚠️ Store is using over 80% of storage limit
+                                    </p>
+                                )}
+                                {storage.full && (
+                                    <p style={{ fontSize: '12px', color: '#e74c3c', marginTop: '6px' }}>
+                                        🚨 Store has reached storage limit — image uploads are blocked
+                                    </p>
+                                )}
+                            </div>
+                        ) : (
+                            <p style={{ fontSize: '13px', color: '#8e9eab', marginTop: '8px' }}>Loading storage info...</p>
+                        )}
                     </div>
 
                     {/* Trial Management */}
