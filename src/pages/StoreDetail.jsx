@@ -12,6 +12,9 @@ const StoreDetail = () => {
     const [storage, setStorage] = useState(null);
     const [trialDays, setTrialDays] = useState(3);
     const [trialLoading, setTrialLoading] = useState(false);
+    const [statusLoading, setStatusLoading] = useState(false);
+    const [statusReason, setStatusReason] = useState('');
+    const [statusMsg, setStatusMsg] = useState('');
     const [extensionRequests, setExtensionRequests] = useState([]);
     const [extDays, setExtDays] = useState({});
     const [extLoading, setExtLoading] = useState({});
@@ -74,6 +77,33 @@ const StoreDetail = () => {
             alert('❌ Error saving panel configuration');
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleStatusChange = async (newStatus) => {
+        if (!window.confirm(`Change store status to "${newStatus}"?`)) return;
+        setStatusLoading(true);
+        setStatusMsg('');
+        try {
+            const token = localStorage.getItem('adminToken');
+            const API = import.meta.env.VITE_API_URL || 'https://api.aapnaestore.com';
+            const res = await fetch(`${API}/api/admin/stores/${store.id}/status`, {
+                method: 'PATCH',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus, reason: statusReason }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                setStore(prev => ({ ...prev, status: newStatus }));
+                setStatusMsg(`Status updated to ${newStatus}`);
+                setStatusReason('');
+            } else {
+                alert(data.error || 'Failed to update status');
+            }
+        } catch (e) {
+            alert('Failed to update status');
+        } finally {
+            setStatusLoading(false);
         }
     };
 
@@ -337,6 +367,53 @@ const StoreDetail = () => {
                         ) : (
                             <p style={{ fontSize: '13px', color: '#8e9eab', marginTop: '8px' }}>Loading storage info...</p>
                         )}
+                    </div>
+
+                    {/* Store Status Control */}
+                    <div style={styles.panelSection}>
+                        <h4>🔧 Store Status Control</h4>
+                        <div style={{ background: '#f8f9fa', borderRadius: '12px', padding: '16px', marginTop: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                <span style={{ fontWeight: '600', fontSize: '14px', color: '#1a1a2e' }}>Current Status:</span>
+                                <span style={{
+                                    padding: '2px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600',
+                                    background: store.status === 'published' ? '#e8f8f0' : store.status === 'suspended' ? '#fde8e8' : store.status === 'inactive' ? '#f3f4f6' : '#e8f0fe',
+                                    color: store.status === 'published' ? '#16a34a' : store.status === 'suspended' ? '#dc2626' : store.status === 'inactive' ? '#6b7280' : '#1d4ed8'
+                                }}>
+                                    {store.status || 'draft'}
+                                </span>
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#556067', marginBottom: '12px' }}>
+                                Manually change store status. Use Suspend for policy violations — the tenant's store will go offline immediately.
+                            </div>
+                            <div style={{ marginBottom: '10px' }}>
+                                <label style={{ fontSize: '12px', color: '#556067', display: 'block', marginBottom: '4px' }}>Reason (optional but recommended)</label>
+                                <input
+                                    type="text"
+                                    value={statusReason}
+                                    onChange={e => setStatusReason(e.target.value)}
+                                    placeholder="e.g. Policy violation, selling prohibited items..."
+                                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                {['published', 'draft', 'suspended', 'inactive'].map(s => (
+                                    <button key={s}
+                                        onClick={() => handleStatusChange(s)}
+                                        disabled={statusLoading || store.status === s}
+                                        style={{
+                                            padding: '8px 16px', border: 'none', borderRadius: '8px', fontWeight: '600', fontSize: '13px',
+                                            cursor: store.status === s ? 'not-allowed' : 'pointer',
+                                            background: store.status === s ? '#e0e0e0' : s === 'published' ? '#16a34a' : s === 'draft' ? '#3b82f6' : s === 'suspended' ? '#dc2626' : '#6b7280',
+                                            color: store.status === s ? '#999' : '#fff'
+                                        }}>
+                                        {s === 'published' ? '✅ Publish' : s === 'draft' ? '📝 Draft' : s === 'suspended' ? '🚫 Suspend' : '⏸ Deactivate'}
+                                    </button>
+                                ))}
+                            </div>
+                            {statusLoading && <p style={{ fontSize: '12px', color: '#25D366', marginTop: '8px' }}>⏳ Updating...</p>}
+                            {statusMsg && <p style={{ fontSize: '12px', color: '#16a34a', marginTop: '8px' }}>✅ {statusMsg}</p>}
+                        </div>
                     </div>
 
                     {/* Trial Management */}
