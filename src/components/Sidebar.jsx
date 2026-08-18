@@ -39,6 +39,10 @@ const Sidebar = () => {
                     <span style={styles.icon}>💳</span>
                     <span>Pricing Plans</span>
                 </Link>
+                <Link to="/payment-gateway" style={{...styles.navLink, ...styles[isActive('/payment-gateway')]}}>
+                    <span style={styles.icon}>🔐</span>
+                    <span>Payment Gateway</span>
+                </Link>
                 <Link to="/terms-acceptances" style={{...styles.navLink, ...styles[isActive('/terms-acceptances')]}}>
                     <span style={styles.icon}>📋</span>
                     <span>Terms Acceptances</span>

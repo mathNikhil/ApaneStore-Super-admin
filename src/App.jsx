@@ -7,6 +7,7 @@ import TenantDetail from './pages/TenantDetail';
 import Stores from './pages/Stores';
 import StoreDetail from './pages/StoreDetail';
 import PricingPlans from './pages/PricingPlans';
+import PaymentGateway from './pages/PaymentGateway';
 import TermsAcceptances from './pages/TermsAcceptances';
 
 const App = () => {
@@ -39,6 +40,10 @@ const App = () => {
                 <Route 
                     path="/pricing-plans" 
                     element={isAuthenticated ? <PricingPlans /> : <Navigate to="/login" />} 
+                />
+                <Route
+                    path="/payment-gateway"
+                    element={isAuthenticated ? <PaymentGateway /> : <Navigate to="/login" />}
                 />
                 <Route 
                     path="/terms-acceptances" 
