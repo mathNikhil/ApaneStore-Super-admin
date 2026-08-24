@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { adminPricingAPI } from '../services/adminApi';
 import Sidebar from '../components/Sidebar';
 
-const CYCLE_LABELS = { monthly: 'Monthly', quarterly: 'Quarterly', annual: 'Annual' };
+const CYCLE_LABELS = { monthly: '30 Days', quarterly: '90 Days', annual: '365 Days' };
 const CYCLE_ORDER = ['monthly', 'quarterly', 'annual'];
 
 // ✅ Grouped by domain+hosting combination, each with its 3 billing-cycle

@@ -9,6 +9,7 @@ import StoreDetail from './pages/StoreDetail';
 import PricingPlans from './pages/PricingPlans';
 import PaymentGateway from './pages/PaymentGateway';
 import TermsAcceptances from './pages/TermsAcceptances';
+import Revenue from './pages/Revenue';
 
 const App = () => {
     const isAuthenticated = !!localStorage.getItem('adminToken');
@@ -49,6 +50,7 @@ const App = () => {
                     path="/terms-acceptances" 
                     element={isAuthenticated ? <TermsAcceptances /> : <Navigate to="/login" />} 
                 />
+                <Route path="/revenue" element={isAuthenticated ? <Revenue /> : <Navigate to="/login" />} />
                 <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>
         </BrowserRouter>

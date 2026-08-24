@@ -38,12 +38,22 @@ const Dashboard = () => {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
                 });
                 const storeResult = await storeResponse.json();
-                
+
+                // Fetch real revenue
+                const revResponse = await fetch(`${API_BASE_URL}/api/admin/revenue`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+                });
+                const revResult = await revResponse.json();
+                const totalRev = revResult.success ? parseFloat(revResult.data.summary.totalRevenue) : 0;
+                const revDisplay = totalRev >= 100000
+                    ? '₹' + (totalRev / 100000).toFixed(1) + 'L'
+                    : '₹' + totalRev.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+
                 setStats({
                     totalTenants: tenants.length,
                     activeTenants: activeTenants,
                     totalStores: storeResult.success ? storeResult.data.length : 0,
-                    revenue: '₹12.4L' // Placeholder
+                    revenue: revDisplay
                 });
             }
         } catch (error) {
@@ -96,7 +106,7 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    <div style={styles.statCard}>
+                    <div style={styles.statCard} onClick={() => navigate('/revenue')}>
                         <div style={{...styles.iconBox, background: 'rgba(52,152,219,0.12)'}}>💰</div>
                         <div>
                             <div style={styles.statValue}>{stats.revenue}</div>
