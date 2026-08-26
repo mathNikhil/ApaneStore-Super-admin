@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminPricingAPI } from '../services/adminApi';
 import Sidebar from '../components/Sidebar';
+import API_BASE_URL from '../config/api';
 
-const CYCLE_LABELS = { monthly: '30 Days', quarterly: '90 Days', annual: '365 Days' };
-const CYCLE_ORDER = ['monthly', 'quarterly', 'annual'];
+const CYCLE_LABELS = { '30days': '30 Days', '90days': '90 Days', '365days': '365 Days', monthly: '30 Days', quarterly: '90 Days', annual: '365 Days', trial: 'Trial' };
+const CYCLE_ORDER = ['30days', '90days', '365days', 'monthly', 'quarterly', 'annual'];
 
 // ✅ Grouped by domain+hosting combination, each with its 3 billing-cycle
 // rows (monthly/quarterly/annual) editable independently. The tenant's
@@ -17,6 +18,22 @@ const PricingPlans = () => {
     const [saving, setSaving] = useState(false);
     const navigate = useNavigate();
 
+
+    // Trial config state
+    const [trialDays, setTrialDays] = React.useState(3);
+    const [trialSaving, setTrialSaving] = React.useState(false);
+    const [trialMsg, setTrialMsg] = React.useState('');
+
+    // Discount config state
+    const [discountSettings, setDiscountSettings] = React.useState({
+        first_publish_discount: 50,
+        repeat_publish_discount: 25,
+        referral_bonus_percent: 10,
+        max_referral_count: 5,
+    });
+    const [discountSaving, setDiscountSaving] = React.useState(false);
+    const [discountMsg, setDiscountMsg] = React.useState('');
+
     useEffect(() => {
         const token = localStorage.getItem('adminToken');
         if (!token) {
@@ -24,6 +41,12 @@ const PricingPlans = () => {
             return;
         }
         fetchPlans();
+        // Fetch discount settings
+        fetch(`${API_BASE_URL}/api/admin/discount-settings`, { headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` } })
+            .then(r => r.json()).then(d => { if (d.success) setDiscountSettings(d.data); }).catch(() => {});
+        // Fetch trial days
+        fetch(`${API_BASE_URL}/api/admin/settings`, { headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` } })
+            .then(r => r.json()).then(d => { if (d.success && d.data.draftStoreExpiryDays) setTrialDays(d.data.draftStoreExpiryDays); }).catch(() => {});
     }, []);
 
     const fetchPlans = async () => {
@@ -35,6 +58,36 @@ const PricingPlans = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleTrialSave = async () => {
+        setTrialSaving(true); setTrialMsg('');
+        try {
+            const token = localStorage.getItem('adminToken');
+            const res = await fetch(`${API_BASE_URL}/api/admin/settings`, {
+                method: 'PUT',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ draftStoreExpiryDays: trialDays }),
+            });
+            const d = await res.json();
+            setTrialMsg(d.success ? '✅ Saved!' : '❌ Failed');
+        } catch { setTrialMsg('❌ Failed'); }
+        finally { setTrialSaving(false); }
+    };
+
+    const handleDiscountSave = async () => {
+        setDiscountSaving(true); setDiscountMsg('');
+        try {
+            const token = localStorage.getItem('adminToken');
+            const res = await fetch(`${API_BASE_URL}/api/admin/discount-settings`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(discountSettings),
+            });
+            const d = await res.json();
+            setDiscountMsg(d.success ? '✅ Saved!' : '❌ Failed');
+        } catch { setDiscountMsg('❌ Failed'); }
+        finally { setDiscountSaving(false); }
     };
 
     const startEdit = (plan) => {
@@ -185,6 +238,108 @@ const PricingPlans = () => {
                         ))}
                     </div>
                 )}
+
+            {/* Trial Configuration */}
+            <div style={{background:'#fff',borderRadius:'14px',padding:'22px',boxShadow:'0 2px 10px rgba(0,0,0,0.06)',maxWidth:'900px',marginTop:'24px'}}>
+                <h2 style={{fontSize:'17px',fontWeight:'700',color:'#1a1a2e',marginBottom:'4px'}}>Trial Configuration</h2>
+                <p style={{fontSize:'12px',color:'#8e9eab',marginBottom:'16px'}}>Set the number of days for free trial period</p>
+                <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
+                    <div>
+                        <label style={{fontSize:'12px',fontWeight:'600',color:'#556067',display:'block',marginBottom:'4px'}}>Trial Days</label>
+                        <input type="number" value={trialDays} onChange={e => setTrialDays(parseInt(e.target.value))}
+                            style={{width:'100px',padding:'8px',border:'1px solid #ddd',borderRadius:'6px',fontSize:'15px',fontWeight:'700'}} />
+                    </div>
+                    <button onClick={handleTrialSave} disabled={trialSaving}
+                        style={{padding:'10px 20px',background:'#1e8e3e',color:'#fff',border:'none',borderRadius:'8px',fontWeight:'700',fontSize:'13px',cursor:'pointer',marginTop:'18px'}}>
+                        {trialSaving ? 'Saving...' : 'Save'}
+                    </button>
+                    {trialMsg && <span style={{fontSize:'13px',marginTop:'18px'}}>{trialMsg}</span>}
+                </div>
+            </div>
+
+            {/* Discount Configuration */}
+            <div style={{background:'#fff',borderRadius:'14px',padding:'22px',boxShadow:'0 2px 10px rgba(0,0,0,0.06)',maxWidth:'900px',marginTop:'24px',marginBottom:'32px'}}>
+                <h2 style={{fontSize:'17px',fontWeight:'700',color:'#1a1a2e',marginBottom:'4px'}}>Discount Configuration</h2>
+                <p style={{fontSize:'12px',color:'#8e9eab',marginBottom:'20px'}}>Configure publish discounts per billing cycle. Applies to all plans equally.</p>
+
+                {/* First Publish */}
+                <div style={{marginBottom:'20px'}}>
+                    <h3 style={{fontSize:'14px',fontWeight:'700',color:'#1a1a2e',marginBottom:'12px',padding:'8px 12px',background:'#e6f4ea',borderRadius:'8px'}}>🎉 First Publish Discounts</h3>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'12px'}}>
+                        {[
+                            {key:'first_publish_30days', label:'30 Days (%)'},
+                            {key:'first_publish_90days', label:'90 Days (%)'},
+                            {key:'first_publish_365days', label:'365 Days (%)'},
+                        ].map(f => (
+                            <div key={f.key} style={{background:'#f8f9fb',borderRadius:'10px',padding:'14px'}}>
+                                <label style={{fontSize:'12px',fontWeight:'600',color:'#556067',display:'block',marginBottom:'4px'}}>{f.label}</label>
+                                <input type="number" min="0" max="100" value={discountSettings[f.key] ?? ''} onChange={e => setDiscountSettings(prev => ({...prev,[f.key]:parseFloat(e.target.value)}))}
+                                    style={{width:'100%',padding:'8px',border:'1px solid #ddd',borderRadius:'6px',fontSize:'18px',fontWeight:'800',textAlign:'center'}} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Repeat Publish */}
+                <div style={{marginBottom:'20px'}}>
+                    <h3 style={{fontSize:'14px',fontWeight:'700',color:'#1a1a2e',marginBottom:'12px',padding:'8px 12px',background:'#e8f0fe',borderRadius:'8px'}}>🔄 Second Publish Discounts</h3>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'12px'}}>
+                        {[
+                            {key:'repeat_publish_30days', label:'30 Days (%)'},
+                            {key:'repeat_publish_90days', label:'90 Days (%)'},
+                            {key:'repeat_publish_365days', label:'365 Days (%)'},
+                        ].map(f => (
+                            <div key={f.key} style={{background:'#f8f9fb',borderRadius:'10px',padding:'14px'}}>
+                                <label style={{fontSize:'12px',fontWeight:'600',color:'#556067',display:'block',marginBottom:'4px'}}>{f.label}</label>
+                                <input type="number" min="0" max="100" value={discountSettings[f.key] ?? ''} onChange={e => setDiscountSettings(prev => ({...prev,[f.key]:parseFloat(e.target.value)}))}
+                                    style={{width:'100%',padding:'8px',border:'1px solid #ddd',borderRadius:'6px',fontSize:'18px',fontWeight:'800',textAlign:'center'}} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Third+ Publish */}
+                <div style={{marginBottom:'20px'}}>
+                    <h3 style={{fontSize:'14px',fontWeight:'700',color:'#1a1a2e',marginBottom:'12px',padding:'8px 12px',background:'#fff3e0',borderRadius:'8px'}}>3️⃣ Third+ Publish Discounts (configurable per market)</h3>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'12px'}}>
+                        {[
+                            {key:'third_publish_30days', label:'30 Days (%)'},
+                            {key:'third_publish_90days', label:'90 Days (%)'},
+                            {key:'third_publish_365days', label:'365 Days (%)'},
+                        ].map(f => (
+                            <div key={f.key} style={{background:'#f8f9fb',borderRadius:'10px',padding:'14px'}}>
+                                <label style={{fontSize:'12px',fontWeight:'600',color:'#556067',display:'block',marginBottom:'4px'}}>{f.label}</label>
+                                <input type="number" min="0" max="100" value={discountSettings[f.key] ?? ''} onChange={e => setDiscountSettings(prev => ({...prev,[f.key]:parseFloat(e.target.value)}))}
+                                    style={{width:'100%',padding:'8px',border:'1px solid #ddd',borderRadius:'6px',fontSize:'18px',fontWeight:'800',textAlign:'center'}} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Referral */}
+                <div style={{marginBottom:'20px'}}>
+                    <h3 style={{fontSize:'14px',fontWeight:'700',color:'#1a1a2e',marginBottom:'12px',padding:'8px 12px',background:'#fce4ec',borderRadius:'8px'}}>🎁 Referral Bonus (One Time Use)</h3>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
+                        {[
+                            {key:'referral_bonus_percent', label:'Bonus % per Referral', desc:'Shown to tenant (actual = this% of 2nd publish discount)'},
+                            {key:'max_referral_count', label:'Max Referrals per Tenant', desc:'Maximum referrals that can earn bonus'},
+                        ].map(f => (
+                            <div key={f.key} style={{background:'#f8f9fb',borderRadius:'10px',padding:'14px'}}>
+                                <label style={{fontSize:'12px',fontWeight:'600',color:'#556067',display:'block',marginBottom:'4px'}}>{f.label}</label>
+                                <input type="number" min="0" value={discountSettings[f.key] ?? ''} onChange={e => setDiscountSettings(prev => ({...prev,[f.key]:parseFloat(e.target.value)}))}
+                                    style={{width:'100%',padding:'8px',border:'1px solid #ddd',borderRadius:'6px',fontSize:'18px',fontWeight:'800',textAlign:'center'}} />
+                                <p style={{fontSize:'11px',color:'#8e9eab',marginTop:'4px'}}>{f.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {discountMsg && <p style={{fontSize:'13px',marginBottom:'12px'}}>{discountMsg}</p>}
+                <button onClick={handleDiscountSave} disabled={discountSaving}
+                    style={{padding:'10px 24px',background:'#1e8e3e',color:'#fff',border:'none',borderRadius:'8px',fontWeight:'700',fontSize:'13px',cursor:'pointer'}}>
+                    {discountSaving ? 'Saving...' : 'Save All Discount Settings'}
+                </button>
+            </div>
             </div>
         </div>
     );
