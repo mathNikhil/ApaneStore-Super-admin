@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 
 const API = 'https://api.aapnaestore.com/api/admin';
@@ -94,7 +95,7 @@ export default function WhatsAppMarket() {
               return (
                 <tr key={s.id}>
                   <td style={styles.td}>
-                    <div style={{ fontWeight:'600' }}>{s.tenant_name || '—'}</div>
+                    <Link to={`/tenants/${s.tenant_id}`} style={{ fontWeight:'600', color:'#1976d2', textDecoration:'none' }}>{s.tenant_name || '—'}</Link>
                     <div style={{ fontSize:'12px', color:'#8e9eab' }}>{s.tenant_email}</div>
                   </td>
                   <td style={styles.td}>{badge('orange', s.plan_name || 'Unknown')}</td>
