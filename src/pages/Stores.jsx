@@ -63,14 +63,14 @@ const Stores = () => {
                         <table style={styles.table}>
                             <thead>
                                 <tr>
-                                    <th>Store</th>
-                                    <th>Tenant</th>
-                                    <th>Subdomain</th>
-                                    <th>Admin</th>
-                                    <th>Production</th>
-                                    <th>Delivery</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    <th style={styles.th}>Store</th>
+                                    <th style={styles.th}>Tenant</th>
+                                    <th style={styles.th}>Subdomain</th>
+                                    <th style={styles.th}>Admin</th>
+                                    <th style={styles.th}>Production</th>
+                                    <th style={styles.th}>Delivery</th>
+                                    <th style={styles.th}>Status</th>
+                                    <th style={styles.th}>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -78,29 +78,29 @@ const Stores = () => {
                                     const permissions = store.permissions || {};
                                     return (
                                         <tr key={store.id}>
-                                            <td>
+                                            <td style={styles.td}>
                                                 <a style={styles.link} onClick={() => navigate(`/stores/${store.id}`)}>
                                                     {store.store_name}
                                                 </a>
                                             </td>
-                                            <td>
+                                            <td style={styles.td}>
                                                 <a style={styles.link} onClick={() => navigate(`/tenants/${store.tenant_id}`)}>
                                                     {store.tenant_name}
                                                 </a>
                                             </td>
-                                            <td>{store.subdomain}.aapnaestore.com</td>
-                                            <td><span style={styles.panelEnabled}>✅</span></td>
-                                            <td>
+                                            <td style={styles.td}>{store.subdomain}.aapnaestore.com</td>
+                                            <td style={styles.td}><span style={styles.panelEnabled}>✅</span></td>
+                                            <td style={styles.td}>
                                                 <span style={permissions.production ? styles.panelEnabled : styles.panelDisabled}>
                                                     {permissions.production ? '✅' : '❌'}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td style={styles.td}>
                                                 <span style={permissions.delivery ? styles.panelEnabled : styles.panelDisabled}>
                                                     {permissions.delivery ? '✅' : '❌'}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td style={styles.td}>
                                                 <span style={{
                                                     ...styles.statusBadge,
                                                     background: store.status === 'published' ? 'rgba(46,213,115,0.15)' : 'rgba(52,152,219,0.15)',
@@ -109,7 +109,7 @@ const Stores = () => {
                                                     {store.status || 'Draft'}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td style={styles.td}>
                                                 <button style={styles.btnPrimary} onClick={() => navigate(`/stores/${store.id}`)}>
                                                     Configure
                                                 </button>
@@ -134,6 +134,8 @@ const styles = {
     searchInput: { width: '100%', maxWidth: '400px', padding: '12px 16px', border: '1px solid #e0e0e0', borderRadius: '10px', fontSize: '14px' },
     tableContainer: { background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
     table: { width: '100%', borderCollapse: 'collapse' },
+    th: { padding: '12px 16px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#8e9eab', borderBottom: '2px solid #e8ecf0' },
+    td: { padding: '12px 16px', fontSize: '14px', color: '#1a2332', borderBottom: '1px solid #f0f4f8' },
     link: { color: '#667eea', cursor: 'pointer', fontWeight: '600' },
     statusBadge: { padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', display: 'inline-block' },
     panelEnabled: { padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '600', background: 'rgba(46,213,115,0.15)', color: '#2ecc71' },

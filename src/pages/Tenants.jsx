@@ -99,32 +99,32 @@ const Tenants = () => {
                         <table style={styles.table}>
                             <thead>
                                 <tr>
-                                    <th>Company</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Joined</th>
-                                    <th>Plan</th>
-                                    <th>Stores</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                    <th style={styles.th}>Company</th>
+                                    <th style={styles.th}>Email</th>
+                                    <th style={styles.th}>Phone</th>
+                                    <th style={styles.th}>Joined</th>
+                                    <th style={styles.th}>Plan</th>
+                                    <th style={styles.th}>Stores</th>
+                                    <th style={styles.th}>Status</th>
+                                    <th style={styles.th}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredTenants.map(tenant => (
                                     <tr key={tenant.id}>
-                                        <td>
+                                        <td style={styles.td}>
                                             <a style={styles.link} onClick={() => navigate(`/tenants/${tenant.id}`)}>
                                                 {tenant.company_name}
                                             </a>
                                         </td>
-                                        <td>{tenant.email}</td>
-                                        <td>{tenant.phone}</td>
+                                        <td style={styles.td}>{tenant.email}</td>
+                                        <td style={styles.td}>{tenant.phone}</td>
                                         <td style={{color:'#8e9eab', fontSize:'12px'}}>
                                           {tenant.created_at ? new Date(tenant.created_at).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : '—'}
                                         </td>
-                                        <td><span style={styles.planBadge}>{tenant.subscription_tier || 'Trial'}</span></td>
-                                        <td>{tenant.store_count || 0}</td>
-                                        <td>
+                                        <td style={styles.td}><span style={styles.planBadge}>{tenant.subscription_tier || 'Trial'}</span></td>
+                                        <td style={styles.td}>{tenant.store_count || 0}</td>
+                                        <td style={styles.td}>
                                             <span style={{
                                                 ...styles.statusBadge,
                                                 background: tenant.status === 'active' ? 'rgba(46,213,115,0.15)' : 
@@ -135,7 +135,7 @@ const Tenants = () => {
                                                 {tenant.status || 'Active'}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td style={styles.td}>
                                             <button 
                                                 style={styles.btnWarning}
                                                 onClick={() => handleToggleStatus(tenant.id, tenant.status)}
@@ -169,6 +169,8 @@ const styles = {
     filterSelect: { padding: '12px 16px', border: '1px solid #e0e0e0', borderRadius: '10px', fontSize: '14px', background: '#fff' },
     tableContainer: { background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
     table: { width: '100%', borderCollapse: 'collapse' },
+    th: { padding: '12px 16px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#8e9eab', borderBottom: '2px solid #e8ecf0' },
+    td: { padding: '12px 16px', fontSize: '14px', color: '#1a2332', borderBottom: '1px solid #f0f4f8' },
     link: { color: '#667eea', cursor: 'pointer', fontWeight: '600' },
     planBadge: { padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', background: '#e3f2fd', color: '#1976d2' },
     statusBadge: { padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', display: 'inline-block' },
