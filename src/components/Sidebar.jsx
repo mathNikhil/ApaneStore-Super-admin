@@ -35,6 +35,10 @@ const Sidebar = () => {
                     <span style={styles.icon}>🏪</span>
                     <span>Stores</span>
                 </Link>
+                <Link to="/whatsapp-market" style={{...styles.navLink, ...styles[isActive('/whatsapp-market')]}}>
+                    <span>📱</span>
+                    <span>WhatsApp Market</span>
+                </Link>
                 <Link to="/pricing-plans" style={{...styles.navLink, ...styles[isActive('/pricing-plans')]}}>
                     <span style={styles.icon}>💳</span>
                     <span>Pricing Plans</span>

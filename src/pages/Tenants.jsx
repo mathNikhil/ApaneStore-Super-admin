@@ -102,6 +102,7 @@ const Tenants = () => {
                                     <th>Company</th>
                                     <th>Email</th>
                                     <th>Phone</th>
+                                    <th>Joined</th>
                                     <th>Plan</th>
                                     <th>Stores</th>
                                     <th>Status</th>
@@ -118,6 +119,9 @@ const Tenants = () => {
                                         </td>
                                         <td>{tenant.email}</td>
                                         <td>{tenant.phone}</td>
+                                        <td style={{color:'#8e9eab', fontSize:'12px'}}>
+                                          {tenant.created_at ? new Date(tenant.created_at).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : '—'}
+                                        </td>
                                         <td><span style={styles.planBadge}>{tenant.subscription_tier || 'Trial'}</span></td>
                                         <td>{tenant.store_count || 0}</td>
                                         <td>

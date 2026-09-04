@@ -10,6 +10,7 @@ import PricingPlans from './pages/PricingPlans';
 import PaymentGateway from './pages/PaymentGateway';
 import TermsAcceptances from './pages/TermsAcceptances';
 import Revenue from './pages/Revenue';
+import WhatsAppMarket from './pages/WhatsAppMarket';
 
 const App = () => {
     const isAuthenticated = !!localStorage.getItem('adminToken');
@@ -37,6 +38,10 @@ const App = () => {
                 <Route 
                     path="/stores/:id" 
                     element={isAuthenticated ? <StoreDetail /> : <Navigate to="/login" />} 
+                />
+                <Route
+                    path="/whatsapp-market"
+                    element={isAuthenticated ? <WhatsAppMarket /> : <Navigate to="/login" />}
                 />
                 <Route 
                     path="/pricing-plans" 
