@@ -71,8 +71,25 @@ const Revenue = () => {
     const totalBase = subscriptions.reduce((s, r) => s + parseFloat(r.base_amount || 0), 0);
     const totalGst = subscriptions.reduce((s, r) => s + parseFloat(r.tax_amount || 0), 0);
     const totalRevenue = subscriptions.reduce((s, r) => s + parseFloat(r.total_amount || 0), 0);
-    return { totalBase, totalGst, totalRevenue, count: subscriptions.length };
-  }, [subscriptions]);
+
+    // Add WA revenue
+    const waRevenue = waOrders.reduce((s, o) => s + parseFloat(o.amount || 0), 0);
+    const waGstRate = 18;
+    const waBase = waOrders.reduce((s, o) => {
+      const amt = parseFloat(o.amount || 0);
+      return s + parseFloat((amt / (1 + waGstRate/100)).toFixed(2));
+    }, 0);
+    const waGst = waRevenue - waBase;
+
+    return {
+      totalBase: totalBase + waBase,
+      totalGst: totalGst + waGst,
+      totalRevenue: totalRevenue + waRevenue,
+      count: subscriptions.length,
+      waCount: waOrders.length,
+      waRevenue,
+    };
+  }, [subscriptions, waOrders]);
 
   const handleDownload = async (sub) => {
     setDownloading(sub.id);
@@ -146,7 +163,7 @@ const Revenue = () => {
           <div style={{...styles.summaryCard, borderTop:'4px solid #006d2f'}}>
             <div style={styles.summaryLabel}>Total Revenue (incl. GST)</div>
             <div style={{...styles.summaryValue, color:'#006d2f'}}>₹{fmt(summary.totalRevenue)}</div>
-            <div style={styles.summarySubLabel}>{summary.count} paid subscriptions</div>
+            <div style={styles.summarySubLabel}>{summary.count} store + {summary.waCount} WA subscriptions</div>
           </div>
           <div style={{...styles.summaryCard, borderTop:'4px solid #1a73e8'}}>
             <div style={styles.summaryLabel}>Base Amount (excl. GST)</div>
