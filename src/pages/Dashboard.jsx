@@ -42,7 +42,7 @@ const Dashboard = () => {
                 // Fetch WA active count
                 try {
                   const waRes = await fetch(API_BASE_URL + '/api/admin/market/subscriptions', {
-                    headers: { Authorization: 'Bearer ' + token }
+                    headers: { Authorization: 'Bearer ' + localStorage.getItem('adminToken') }
                   });
                   const waData = await waRes.json();
                   const waCount = Array.isArray(waData) ? waData.length : 0;
