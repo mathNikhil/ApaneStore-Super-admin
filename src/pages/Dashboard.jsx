@@ -39,6 +39,16 @@ const Dashboard = () => {
                 });
                 const storeResult = await storeResponse.json();
 
+                // Fetch WA active count
+                try {
+                  const waRes = await fetch(API_BASE_URL + '/api/admin/market/subscriptions', {
+                    headers: { Authorization: 'Bearer ' + token }
+                  });
+                  const waData = await waRes.json();
+                  const waCount = Array.isArray(waData) ? waData.filter(s => s.is_active).length : 0;
+                  setStats(prev => ({...prev, waActive: waCount}));
+                } catch(e) {}
+
                 // Fetch real revenue
                 const revResponse = await fetch(`${API_BASE_URL}/api/admin/revenue`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
@@ -106,19 +116,19 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    <div style={styles.statCard} onClick={() => navigate('/revenue')}>
-                        <div style={{...styles.iconBox, background: 'rgba(52,152,219,0.12)'}}>💰</div>
-                        <div>
-                            <div style={styles.statValue}>{stats.revenue}</div>
-                            <div style={styles.statLabel}>Revenue</div>
-                        </div>
-                    </div>
-
                     <div style={styles.statCard} onClick={() => navigate('/whatsapp-market')}>
                         <div style={{...styles.iconBox, background: 'rgba(37,211,102,0.12)'}}>📱</div>
                         <div>
                             <div style={styles.statValue}>{stats.waActive}</div>
                             <div style={styles.statLabel}>WA Market Active</div>
+                        </div>
+                    </div>
+
+                    <div style={styles.statCard} onClick={() => navigate('/revenue')}>
+                        <div style={{...styles.iconBox, background: 'rgba(52,152,219,0.12)'}}>💰</div>
+                        <div>
+                            <div style={styles.statValue}>{stats.revenue}</div>
+                            <div style={styles.statLabel}>Revenue</div>
                         </div>
                     </div>
                 </div>
