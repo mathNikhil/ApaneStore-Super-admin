@@ -45,7 +45,7 @@ const Dashboard = () => {
                     headers: { Authorization: 'Bearer ' + token }
                   });
                   const waData = await waRes.json();
-                  const waCount = Array.isArray(waData) ? waData.filter(s => s.is_active).length : 0;
+                  const waCount = Array.isArray(waData) ? waData.length : 0;
                   setStats(prev => ({...prev, waActive: waCount}));
                 } catch(e) {}
 
@@ -120,7 +120,7 @@ const Dashboard = () => {
                         <div style={{...styles.iconBox, background: 'rgba(37,211,102,0.12)'}}>📱</div>
                         <div>
                             <div style={styles.statValue}>{stats.waActive}</div>
-                            <div style={styles.statLabel}>WA Market Active</div>
+                            <div style={styles.statLabel}>WA Subscribers</div>
                         </div>
                     </div>
 
