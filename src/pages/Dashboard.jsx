@@ -8,7 +8,7 @@ const Dashboard = () => {
         totalTenants: 0,
         activeTenants: 0,
         totalStores: 0,
-        revenue: '₹0'
+        revenue: '₹0', waActive: 0
     });
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
@@ -53,7 +53,7 @@ const Dashboard = () => {
                     totalTenants: tenants.length,
                     activeTenants: activeTenants,
                     totalStores: storeResult.success ? storeResult.data.length : 0,
-                    revenue: revDisplay
+                    revenue: revDisplay, waActive: 0
                 });
             }
         } catch (error) {
@@ -113,6 +113,14 @@ const Dashboard = () => {
                             <div style={styles.statLabel}>Revenue</div>
                         </div>
                     </div>
+
+                    <div style={styles.statCard} onClick={() => navigate('/whatsapp-market')}>
+                        <div style={{...styles.iconBox, background: 'rgba(37,211,102,0.12)'}}>📱</div>
+                        <div>
+                            <div style={styles.statValue}>{stats.waActive}</div>
+                            <div style={styles.statLabel}>WA Market Active</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div style={styles.quickActions}>
@@ -137,7 +145,7 @@ const styles = {
     container: { display: 'flex', minHeight: '100vh', background: '#f0f2f5' },
     main: { flex: 1, padding: '30px', marginLeft: '260px' },
     header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' },
-    statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '30px' },
+    statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px', marginBottom: '30px' },
     statCard: { background: 'white', padding: '24px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', cursor: 'pointer' },
     iconBox: { width: '56px', height: '56px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' },
     statValue: { fontSize: '28px', fontWeight: 'bold', color: '#1a1a2e' },
