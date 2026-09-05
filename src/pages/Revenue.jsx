@@ -119,14 +119,11 @@ const Revenue = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) { alert('Bulk download failed'); return; }
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'AapnaEstore-Invoices.zip';
-      document.body.appendChild(a); a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      const html = await res.text();
+      const w = window.open('', '_blank');
+      w.document.write(html);
+      w.document.close();
+      w.print();
     } catch { alert('Bulk download failed'); }
     finally { setBulkDownloading(false); }
   };
