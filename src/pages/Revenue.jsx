@@ -20,6 +20,7 @@ const Revenue = () => {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(null);
   const [bulkDownloading, setBulkDownloading] = useState(false);
+  const [waOrders, setWaOrders] = useState([]);
   const [sortCol, setSortCol] = useState('paid_at');
   const [sortDir, setSortDir] = useState('desc');
   const navigate = useNavigate();
@@ -27,6 +28,10 @@ const Revenue = () => {
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
     if (!token) { navigate('/login'); return; }
+    fetch(`${API_BASE_URL}/api/admin/market/all-invoices`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(r => r.json()).then(d => setWaOrders(Array.isArray(d) ? d : [])).catch(() => {});
+
     fetch(`${API_BASE_URL}/api/admin/revenue`, {
       headers: { Authorization: `Bearer ${token}` }
     })
