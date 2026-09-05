@@ -26,6 +26,7 @@ const badge = (color, text) => (
 export default function WhatsAppMarket() {
   const [subs, setSubs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [allOrders, setAllOrders] = useState([]);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
 
@@ -36,6 +37,12 @@ export default function WhatsAppMarket() {
       setSubs(Array.isArray(d) ? d : []);
       setLoading(false);
     }).catch(() => setLoading(false));
+
+    fetch(`${API}/market/all-invoices`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    }).then(r => r.json()).then(d => {
+      setAllOrders(Array.isArray(d) ? d : []);
+    }).catch(() => {});
   }, []);
 
   const filtered = subs.filter(s => {
@@ -47,7 +54,7 @@ export default function WhatsAppMarket() {
   });
 
   const totalActive = subs.filter(s => s.is_active).length;
-  const totalRevenue = subs.reduce((sum, s) => sum + (s.price_paid || 0), 0);
+  const totalRevenue = allOrders.reduce((sum, o) => sum + parseFloat(o.amount || 0), 0);
   const totalSent = subs.reduce((sum, s) => sum + (s.quota_used || 0), 0);
 
   return (
@@ -60,7 +67,7 @@ export default function WhatsAppMarket() {
       <div style={styles.statsRow}>
         <div style={styles.statCard}><div style={styles.statNum}>{subs.length}</div><div style={styles.statLabel}>Total subscribers</div></div>
         <div style={styles.statCard}><div style={{...styles.statNum,color:'#43a047'}}>{totalActive}</div><div style={styles.statLabel}>Active plans</div></div>
-        <div style={styles.statCard}><div style={{...styles.statNum,color:'#1976d2'}}>₹{(totalRevenue/100).toFixed(0)}</div><div style={styles.statLabel}>Total revenue</div></div>
+        <div style={styles.statCard}><div style={{...styles.statNum,color:'#1976d2'}}>₹{totalRevenue.toFixed(2)}</div><div style={styles.statLabel}>Total revenue</div></div>
         <div style={styles.statCard}><div style={styles.statNum}>{totalSent}</div><div style={styles.statLabel}>Messages sent</div></div>
       </div>
 
