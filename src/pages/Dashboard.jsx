@@ -39,14 +39,14 @@ const Dashboard = () => {
                 });
                 const storeResult = await storeResponse.json();
 
-                // Fetch WA active count
+                // Fetch WA subscribers count
+                let waCount = 0;
                 try {
                   const waRes = await fetch(API_BASE_URL + '/api/admin/market/subscriptions', {
                     headers: { Authorization: 'Bearer ' + localStorage.getItem('adminToken') }
                   });
                   const waData = await waRes.json();
-                  const waCount = Array.isArray(waData) ? waData.length : 0;
-                  setStats(prev => ({...prev, waActive: waCount}));
+                  waCount = Array.isArray(waData) ? waData.length : 0;
                 } catch(e) {}
 
                 // Fetch real revenue
@@ -63,7 +63,7 @@ const Dashboard = () => {
                     totalTenants: tenants.length,
                     activeTenants: activeTenants,
                     totalStores: storeResult.success ? storeResult.data.length : 0,
-                    revenue: revDisplay, waActive: 0
+                    revenue: revDisplay, waActive: waCount || 0
                 });
             }
         } catch (error) {
