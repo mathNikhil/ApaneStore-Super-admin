@@ -247,6 +247,54 @@ const Revenue = () => {
           Net platform revenue (base) is ₹{fmt(summary.totalBase)}.
           Draft stores are excluded from this report.
         </div>
+
+        {/* WhatsApp Market Revenue */}
+        {waOrders.length > 0 && (
+          <div style={{marginTop:32}}>
+            <h2 style={{fontSize:20,fontWeight:700,marginBottom:4}}>📱 WhatsApp Market Revenue</h2>
+            <p style={{color:'#8e9eab',fontSize:13,marginBottom:16}}>{waOrders.length} paid subscriptions</p>
+            <div style={styles.tableWrap}>
+              <table style={{...styles.table,minWidth:700}}>
+                <thead>
+                  <tr style={styles.thead}>
+                    {['Tenant','Plan','Paid On','Base (₹)','GST %','GST (₹)','Total (₹)','Invoice'].map(h=>(
+                      <th key={h} style={styles.th}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {waOrders.map((order,idx) => {
+                    const amt = parseFloat(order.amount || 0);
+                    const gstRate = parseFloat(order.gst_rate || 18);
+                    const base = parseFloat(order.base_amount || (amt/(1+gstRate/100)).toFixed(2));
+                    const gst = parseFloat((amt - base).toFixed(2));
+                    const total = amt;
+                    const date = order.created_at ? new Date(order.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : 'N/A';
+                    const yr = new Date(order.created_at||Date.now()).getFullYear();
+                    const invoiceNo = `WA-INV-${yr}-${String(order.id).padStart(4,'0')}`;
+                    const downloadWA = () => {
+                      const html = `<!DOCTYPE html><html><head><title>${invoiceNo}</title><style>body{font-family:Arial;max-width:600px;margin:40px auto}table{width:100%;border-collapse:collapse;margin:20px 0}th{background:#f8fafc;padding:10px;text-align:left;border-bottom:2px solid #e8ecf0}td{padding:10px;border-bottom:1px solid #f0f4f8}.b{font-weight:700}</style></head><body><div style="display:flex;justify-content:space-between;margin-bottom:30px"><div><div style="font-size:24px;font-weight:700;color:#006d2f">AapnaEstore</div><div style="font-size:12px;color:#8e9eab">WhatsApp Market — Seller Copy</div></div><div style="text-align:right"><div class="b">${invoiceNo}</div><div style="font-size:12px;color:#8e9eab">${date}</div></div></div><p><b>Tenant:</b> ${order.tenant_name||'—'} (${order.tenant_email||''})</p><table><tr><th>Description</th><th>Amount</th></tr><tr><td>WhatsApp Market — ${order.plan_name||'Subscription'}</td><td>₹${base.toFixed(2)}</td></tr><tr><td>GST @ ${gstRate}%</td><td>₹${gst.toFixed(2)}</td></tr><tr class="b"><td>Total</td><td>₹${total.toFixed(2)}</td></tr></table><div style="margin-top:20px;font-size:12px;color:#8e9eab"><p>Order: ${order.order_id}</p><p>AapnaEstore · support@aapnaestore.com</p></div></body></html>`;
+                      const w=window.open('','_blank');w.document.write(html);w.document.close();w.print();
+                    };
+                    return (
+                      <tr key={order.id} style={{...styles.tr,background:idx%2===0?'#fff':'#fafafa'}}>
+                        <td style={styles.td}><div style={{fontWeight:600}}>{order.tenant_name||'—'}</div><div style={{fontSize:11,color:'#8e9eab'}}>{order.tenant_email}</div></td>
+                        <td style={styles.td}>{order.plan_name||'—'}</td>
+                        <td style={{...styles.td,fontSize:12}}>{date}</td>
+                        <td style={{...styles.td,textAlign:'right'}}>₹{base.toFixed(2)}</td>
+                        <td style={{...styles.td,textAlign:'center'}}>{gstRate}%</td>
+                        <td style={{...styles.td,textAlign:'right',color:'#f59e0b',fontWeight:500}}>₹{gst.toFixed(2)}</td>
+                        <td style={{...styles.td,textAlign:'right',fontWeight:700,color:'#006d2f'}}>₹{total.toFixed(2)}</td>
+                        <td style={styles.td}><button onClick={downloadWA} style={styles.dlBtn}>⬇ PDF</button></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
