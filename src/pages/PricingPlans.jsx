@@ -45,7 +45,7 @@ const PricingPlans = () => {
     const [newWaPlan, setNewWaPlan] = useState({
         name:'', description:'', price_monthly:'', price_yearly:'',
         daily_msg_limit:75, max_scheduled:10, image_retain_days:30,
-        gap_seconds_min:2, validity_days:30, allow_waba:false, is_active:true,
+        gap_seconds_min:2, validity_days:30, gst_rate:18, allow_waba:false, is_active:true,
         is_recommended:false, sort_order:0,
     });
 
@@ -472,7 +472,7 @@ const PricingPlans = () => {
                                 {isEditing ? (
                                     <div>
                                         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px',marginBottom:'10px'}}>
-                                            {[['Plan name','name','text'],['Description','description','text'],['Monthly Rs','price_monthly','number'],['Yearly Rs','price_yearly','number'],['Daily msg limit','daily_msg_limit','number'],['Max scheduled','max_scheduled','number'],['Validity days','validity_days','number'],['Image days','image_retain_days','number'],['Gap seconds','gap_seconds_min','number']].map(([l,k,t])=>(
+                                            {[['Plan name','name','text'],['Description','description','text'],['Monthly Rs','price_monthly','number'],['Yearly Rs','price_yearly','number'],['GST %','gst_rate','number'],['Daily msg limit','daily_msg_limit','number'],['Max scheduled','max_scheduled','number'],['Validity days','validity_days','number'],['Image days','image_retain_days','number'],['Gap seconds','gap_seconds_min','number']].map(([l,k,t])=>(
                                                 <div key={k}>
                                                     <label style={{fontSize:'11px',fontWeight:'600',color:'#556067',display:'block',marginBottom:'3px'}}>{l}</label>
                                                     <input type={t} value={waEditForm[k]??''} onChange={e=>setWaEditForm(f=>({...f,[k]:t==='number'?parseFloat(e.target.value)||'':e.target.value}))} style={{width:'100%',padding:'7px',border:'1px solid #ddd',borderRadius:'6px',fontSize:'13px'}} />
@@ -504,7 +504,7 @@ const PricingPlans = () => {
                                             <span style={{fontSize:'12px',color:'#8e9eab'}}>/mo</span>
                                             {plan.price_yearly && <span style={{fontSize:'11px',color:'#8e9eab',marginLeft:'8px'}}>Rs{Math.round(plan.price_yearly/100)}/yr</span>}
                                             <div style={{display:'flex',gap:'8px',marginTop:'8px',flexWrap:'wrap'}}>
-                                                {[[plan.daily_msg_limit+' msg/day','msg'],[plan.max_scheduled+' scheduled','sch'],[plan.validity_days+'d valid','vld'],[plan.image_retain_days+'d storage','img'],[plan.gap_seconds_min+'s gap','gap']].map(([v,k])=>(
+                                                {[[plan.daily_msg_limit+' msg/day','msg'],[plan.max_scheduled+' scheduled','sch'],[plan.validity_days+'d valid','vld'],['GST '+plan.gst_rate+'%','gst'],[plan.image_retain_days+'d storage','img'],[plan.gap_seconds_min+'s gap','gap']].map(([v,k])=>(
                                                     <span key={k} style={{fontSize:'11px',color:'#556067',background:'#f0f2f5',padding:'3px 8px',borderRadius:'6px'}}>{v}</span>
                                                 ))}
                                             </div>
