@@ -10,6 +10,7 @@ import PricingPlans from './pages/PricingPlans';
 import PaymentGateway from './pages/PaymentGateway';
 import TermsAcceptances from './pages/TermsAcceptances';
 import Revenue from './pages/Revenue';
+import BillingSettings from './pages/BillingSettings';
 import WhatsAppMarket from './pages/WhatsAppMarket';
 
 const App = () => {
@@ -56,6 +57,7 @@ const App = () => {
                     element={isAuthenticated ? <TermsAcceptances /> : <Navigate to="/login" />} 
                 />
                 <Route path="/revenue" element={isAuthenticated ? <Revenue /> : <Navigate to="/login" />} />
+                <Route path="/billing-settings" element={isAuthenticated ? <BillingSettings /> : <Navigate to="/login" />} />
                 <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>
         </BrowserRouter>
