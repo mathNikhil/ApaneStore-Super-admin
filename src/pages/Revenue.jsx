@@ -119,6 +119,7 @@ const Revenue = () => {
     finally { setDownloading(null); }
   };
 
+  const handlePopupDownload = () => { const sub = invoicePopup; setInvoicePopup(null); doDownload(sub, invoiceFields); };
   const handleDownload = (sub) => {
     if (!sub.tenant_business_name || !sub.tenant_state) {
       setInvoiceFields({ tenant_business_name: sub.tenant_business_name || '', tenant_gstin: sub.tenant_gstin || '', tenant_state: sub.tenant_state || '', tenant_address: sub.tenant_address || '' });
@@ -128,11 +129,7 @@ const Revenue = () => {
     }
   };
 
-  const handlePopupDownload = () => {
-    const sub = invoicePopup;
-    setInvoicePopup(null);
-    doDownload(sub, invoiceFields);
-  };
+
 
   const handleBulkDownload = async () => {
     setBulkDownloading(true);
@@ -331,6 +328,70 @@ const Revenue = () => {
             </div>
           </div>
         )}
+
+      {invoicePopup && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 32, width: 480, boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>Tenant Invoice Details</h2>
+            <p style={{ fontSize: 13, color: '#556067', marginBottom: 24 }}>Required for GST compliance</p>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#556067', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Business Name *</label>
+              <input value={invoiceFields.tenant_business_name} onChange={e => setInvoiceFields(p => ({...p, tenant_business_name: e.target.value}))} placeholder="Registered business name" style={{ width: '100%', padding: '10px 14px', border: '1px solid #e0e3e6', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#556067', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>GSTIN (optional)</label>
+              <input value={invoiceFields.tenant_gstin} onChange={e => setInvoiceFields(p => ({...p, tenant_gstin: e.target.value.toUpperCase()}))} placeholder="e.g. 22AAAAA0000A1Z5" maxLength={15} style={{ width: '100%', padding: '10px 14px', border: '1px solid #e0e3e6', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#556067', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>State *</label>
+              <select value={invoiceFields.tenant_state} onChange={e => setInvoiceFields(p => ({...p, tenant_state: e.target.value}))} style={{ width: '100%', padding: '10px 14px', border: '1px solid #e0e3e6', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}>
+                <option value="">Select State</option>
+                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                <option value="Assam">Assam</option>
+                <option value="Bihar">Bihar</option>
+                <option value="Chhattisgarh">Chhattisgarh</option>
+                <option value="Goa">Goa</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                <option value="Jharkhand">Jharkhand</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Kerala">Kerala</option>
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Manipur">Manipur</option>
+                <option value="Meghalaya">Meghalaya</option>
+                <option value="Mizoram">Mizoram</option>
+                <option value="Nagaland">Nagaland</option>
+                <option value="Odisha">Odisha</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Sikkim">Sikkim</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Telangana">Telangana</option>
+                <option value="Tripura">Tripura</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Uttarakhand">Uttarakhand</option>
+                <option value="West Bengal">West Bengal</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                <option value="Ladakh">Ladakh</option>
+                <option value="Puducherry">Puducherry</option>
+                <option value="Chandigarh">Chandigarh</option>
+              </select>
+            </div>
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#556067', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Billing Address</label>
+              <textarea value={invoiceFields.tenant_address} onChange={e => setInvoiceFields(p => ({...p, tenant_address: e.target.value}))} placeholder="Full billing address" style={{ width: '100%', padding: '10px 14px', border: '1px solid #e0e3e6', borderRadius: 8, fontSize: 14, boxSizing: 'border-box', height: 80, resize: 'vertical' }} />
+            </div>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button onClick={() => setInvoicePopup(null)} style={{ flex: 1, padding: 10, border: '1px solid #e0e3e6', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 14 }}>Cancel</button>
+              <button onClick={handlePopupDownload} disabled={!invoiceFields.tenant_business_name || !invoiceFields.tenant_state} style={{ flex: 2, padding: 10, border: 'none', borderRadius: 8, background: '#006d2f', color: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 700 }}>Save & Download</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       </div>
     </div>
