@@ -20,6 +20,8 @@ const Revenue = () => {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(null);
   const [bulkDownloading, setBulkDownloading] = useState(false);
+  const [invoicePopup, setInvoicePopup] = useState(null);
+  const [invoiceFields, setInvoiceFields] = useState({ tenant_business_name: '', tenant_gstin: '', tenant_state: '', tenant_address: '' });
   const [waOrders, setWaOrders] = useState([]);
   const [sortCol, setSortCol] = useState('paid_at');
   const [sortDir, setSortDir] = useState('desc');
@@ -91,12 +93,18 @@ const Revenue = () => {
     };
   }, [subscriptions, waOrders]);
 
-  const handleDownload = async (sub) => {
+  const doDownload = async (sub, fields) => {
     setDownloading(sub.id);
     try {
       const token = localStorage.getItem('adminToken');
       const res = await fetch(`${API_BASE_URL}/api/admin/invoices/${sub.id}/download`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'x-tenant-gstin': fields.tenant_gstin || '',
+          'x-tenant-state': fields.tenant_state || '',
+          'x-tenant-business': fields.tenant_business_name || '',
+          'x-tenant-address': fields.tenant_address || ''
+        }
       });
       if (!res.ok) { alert('Failed to download invoice'); return; }
       const blob = await res.blob();
@@ -109,6 +117,21 @@ const Revenue = () => {
       window.URL.revokeObjectURL(url);
     } catch { alert('Failed to download invoice'); }
     finally { setDownloading(null); }
+  };
+
+  const handleDownload = (sub) => {
+    if (!sub.tenant_business_name || !sub.tenant_state) {
+      setInvoiceFields({ tenant_business_name: sub.tenant_business_name || '', tenant_gstin: sub.tenant_gstin || '', tenant_state: sub.tenant_state || '', tenant_address: sub.tenant_address || '' });
+      setInvoicePopup(sub);
+    } else {
+      doDownload(sub, { tenant_business_name: sub.tenant_business_name, tenant_gstin: sub.tenant_gstin, tenant_state: sub.tenant_state, tenant_address: sub.tenant_address });
+    }
+  };
+
+  const handlePopupDownload = () => {
+    const sub = invoicePopup;
+    setInvoicePopup(null);
+    doDownload(sub, invoiceFields);
   };
 
   const handleBulkDownload = async () => {
@@ -337,4 +360,46 @@ const styles = {
   taxNote: { background:'#fff3cd', border:'1px solid #ffc107', borderRadius:'10px', padding:'14px 18px', fontSize:13, color:'#856404' },
 };
 
+
+      {invoicePopup && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 32, width: 480, boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>Tenant Invoice Details</h2>
+            <p style={{ fontSize: 13, color: '#556067', marginBottom: 24 }}>Required for GST compliance</p>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#556067', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Business Name *</label>
+              <input value={invoiceFields.tenant_business_name} onChange={e => setInvoiceFields(p => ({...p, tenant_business_name: e.target.value}))}
+                placeholder="Tenant registered business name"
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #e0e3e6', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#556067', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>GSTIN (optional)</label>
+              <input value={invoiceFields.tenant_gstin} onChange={e => setInvoiceFields(p => ({...p, tenant_gstin: e.target.value.toUpperCase()}))}
+                placeholder="e.g. 22AAAAA0000A1Z5" maxLength={15}
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #e0e3e6', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#556067', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>State *</label>
+              <select value={invoiceFields.tenant_state} onChange={e => setInvoiceFields(p => ({...p, tenant_state: e.target.value}))}
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #e0e3e6', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}>
+                <option value="">Select State</option>
+                {['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Delhi','Jammu and Kashmir','Ladakh','Puducherry','Chandigarh']}.map(s => <option key={s} value={s}>{s}</option>)
+              </select>
+            </div>
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#556067', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Billing Address</label>
+              <textarea value={invoiceFields.tenant_address} onChange={e => setInvoiceFields(p => ({...p, tenant_address: e.target.value}))}
+                placeholder="Full billing address"
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #e0e3e6', borderRadius: 8, fontSize: 14, boxSizing: 'border-box', height: 80, resize: 'vertical' }} />
+            </div>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button onClick={() => setInvoicePopup(null)} style={{ flex: 1, padding: 10, border: '1px solid #e0e3e6', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 14 }}>Cancel</button>
+              <button onClick={handlePopupDownload} disabled={!invoiceFields.tenant_business_name || !invoiceFields.tenant_state}
+                style={{ flex: 2, padding: 10, border: 'none', borderRadius: 8, background: '#006d2f', color: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 700 }}>
+                Save & Download
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 export default Revenue;
