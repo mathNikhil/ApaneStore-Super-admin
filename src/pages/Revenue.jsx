@@ -311,9 +311,22 @@ const Revenue = () => {
                     const date = order.created_at ? new Date(order.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : 'N/A';
                     const yr = new Date(order.created_at||Date.now()).getFullYear();
                     const invoiceNo = `WA-INV-${yr}-${String(order.id).padStart(4,'0')}`;
-                    const downloadWA = () => {
-                      const html = `<!DOCTYPE html><html><head><title>${invoiceNo}</title><style>body{font-family:Arial;max-width:600px;margin:40px auto}table{width:100%;border-collapse:collapse;margin:20px 0}th{background:#f8fafc;padding:10px;text-align:left;border-bottom:2px solid #e8ecf0}td{padding:10px;border-bottom:1px solid #f0f4f8}.b{font-weight:700}</style></head><body><div style="display:flex;justify-content:space-between;margin-bottom:30px"><div><div style="font-size:24px;font-weight:700;color:#006d2f">AapnaEstore</div><div style="font-size:12px;color:#8e9eab">WhatsApp Market — Seller Copy</div></div><div style="text-align:right"><div class="b">${invoiceNo}</div><div style="font-size:12px;color:#8e9eab">${date}</div></div></div><p><b>Tenant:</b> ${order.tenant_name||'—'} (${order.tenant_email||''})</p><table><tr><th>Description</th><th>Amount</th></tr><tr><td>WhatsApp Market — ${order.plan_name||'Subscription'}</td><td>₹${base.toFixed(2)}</td></tr><tr><td>GST @ ${gstRate}%</td><td>₹${gst.toFixed(2)}</td></tr><tr class="b"><td>Total</td><td>₹${total.toFixed(2)}</td></tr></table><div style="margin-top:20px;font-size:12px;color:#8e9eab"><p>Order: ${order.order_id}</p><p>AapnaEstore · support@aapnaestore.com</p></div></body></html>`;
-                      const w=window.open('','_blank');w.document.write(html);w.document.close();w.print();
+                    const downloadWA = async () => {
+                      try {
+                        const token = localStorage.getItem('adminToken');
+                        const res = await fetch(`${API_BASE_URL}/api/admin/market/invoices/${order.order_id}/download`, {
+                          headers: { Authorization: `Bearer ${token}` }
+                        });
+                        if (!res.ok) { alert('Failed to download WA invoice'); return; }
+                        const blob = await res.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = `${invoiceNo}.pdf`;
+                        document.body.appendChild(a); a.click();
+                        setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
+                      } catch(err) { alert('Error: ' + err.message); }
                     };
                     return (
                       <tr key={order.id} style={{...styles.tr,background:idx%2===0?'#fff':'#fafafa'}}>

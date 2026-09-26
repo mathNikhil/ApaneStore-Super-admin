@@ -444,7 +444,7 @@ const PricingPlans = () => {
                                 {[['Plan name *','name','text'],['Description','description','text'],['Monthly Rs *','price_monthly','number'],['Yearly Rs','price_yearly','number'],['Daily msg limit','daily_msg_limit','number'],['Max scheduled','max_scheduled','number'],['Validity days','validity_days','number'],['Image days','image_retain_days','number'],['Gap seconds','gap_seconds_min','number']].map(([l,k,t])=>(
                                     <div key={k}>
                                         <label style={{fontSize:'11px',fontWeight:'600',color:'#556067',display:'block',marginBottom:'3px'}}>{l}</label>
-                                        <input type={t} value={newWaPlan[k]??''} onChange={e=>setNewWaPlan(f=>({...f,[k]:t==='number'?parseFloat(e.target.value)||'':e.target.value}))} style={{width:'100%',padding:'7px',border:'1px solid #ddd',borderRadius:'6px',fontSize:'13px'}} />
+                                        <input type={t} value={newWaPlan[k]??''} onChange={e=>setNewWaPlan(f=>({...f,[k]:t==='number'?(e.target.value===''?'':Math.max(0,parseFloat(e.target.value)||0)):e.target.value}))} style={{width:'100%',padding:'7px',border:'1px solid #ddd',borderRadius:'6px',fontSize:'13px'}} />
                                     </div>
                                 ))}
                             </div>
@@ -475,7 +475,7 @@ const PricingPlans = () => {
                                             {[['Plan name','name','text'],['Description','description','text'],['Monthly Rs','price_monthly','number'],['Yearly Rs','price_yearly','number'],['GST %','gst_rate','number'],['Daily msg limit','daily_msg_limit','number'],['Max scheduled','max_scheduled','number'],['Validity days','validity_days','number'],['Image days','image_retain_days','number'],['Gap seconds','gap_seconds_min','number']].map(([l,k,t])=>(
                                                 <div key={k}>
                                                     <label style={{fontSize:'11px',fontWeight:'600',color:'#556067',display:'block',marginBottom:'3px'}}>{l}</label>
-                                                    <input type={t} value={waEditForm[k]??''} onChange={e=>setWaEditForm(f=>({...f,[k]:t==='number'?parseFloat(e.target.value)||'':e.target.value}))} style={{width:'100%',padding:'7px',border:'1px solid #ddd',borderRadius:'6px',fontSize:'13px'}} />
+                                                    <input type={t} value={waEditForm[k]??''} onChange={e=>setWaEditForm(f=>({...f,[k]:t==='number'?(e.target.value===''?'':Math.max(0,parseFloat(e.target.value)||0)):e.target.value}))} style={{width:'100%',padding:'7px',border:'1px solid #ddd',borderRadius:'6px',fontSize:'13px'}} />
                                                 </div>
                                             ))}
                                         </div>
