@@ -94,6 +94,33 @@ const TenantDetail = () => {
                     </div>
                 </div>
 
+                {/* Invoice Details Section */}
+                <div style={{ background: '#fff', borderRadius: 14, padding: '20px 24px', marginBottom: 24, boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
+                    <h3 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: '#191c1e' }}>🧾 Invoice / GST Details</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+                        <div>
+                            <div style={styles.infoLabel}>Business Name</div>
+                            <div style={styles.infoValue}>{tenant.business_name || tenant.company_name || '—'}</div>
+                        </div>
+                        <div>
+                            <div style={styles.infoLabel}>Owner / Contact Person</div>
+                            <div style={styles.infoValue}>{tenant.full_name || '—'}</div>
+                        </div>
+                        <div>
+                            <div style={styles.infoLabel}>GSTIN</div>
+                            <div style={styles.infoValue}>{tenant.gst_number || <span style={{color:'#8e9eab'}}>Not provided</span>}</div>
+                        </div>
+                        <div>
+                            <div style={styles.infoLabel}>State</div>
+                            <div style={styles.infoValue}>{tenant.state || '—'}</div>
+                        </div>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <div style={styles.infoLabel}>Billing Address</div>
+                            <div style={styles.infoValue}>{tenant.address || '—'}</div>
+                        </div>
+                    </div>
+                </div>
+
                 <h3 style={styles.storesTitle}>🏪 Stores ({tenant.stores?.length || 0})</h3>
 
                 <div style={styles.storeGrid}>
