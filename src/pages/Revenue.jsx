@@ -95,17 +95,30 @@ const Revenue = () => {
 
   const doDownload = async (sub, fields) => {
     setDownloading(sub.id);
+    const token = localStorage.getItem('adminToken');
+    const url = `${API_BASE_URL}/api/admin/invoices/${sub.id}/download`;
     try {
-      const token = localStorage.getItem('adminToken');
-      const headers = { Authorization: `Bearer ${token}`, 'x-tenant-gstin': fields.tenant_gstin||'', 'x-tenant-state': fields.tenant_state||'', 'x-tenant-business': fields.tenant_business_name||'', 'x-tenant-address': fields.tenant_address||'' };
-      const res = await fetch(`${API_BASE_URL}/api/admin/invoices/${sub.id}/download`, { headers });
-      if (!res.ok) { alert('Failed to download invoice'); return; }
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { 
+        const txt = await res.text();
+        alert('Failed: ' + res.status + ' ' + txt.substring(0, 100)); 
+        return; 
+      }
       const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = `${sub.invoice_number || sub.id}.pdf`;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch { alert('Failed to download invoice'); } finally { setDownloading(null); }
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = blobUrl;
+      a.download = (sub.invoice_number || sub.id) + '.pdf';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(blobUrl); }, 100);
+    } catch (err) { 
+      console.error('Download error:', err); 
+      alert('Download error: ' + err.message); 
+    } finally { 
+      setDownloading(null); 
+    }
   };
   const handlePopupDownload = () => { const s = invoicePopup; setInvoicePopup(null); doDownload(s, invoiceFields); };
   const handleDownload = (sub) => {
