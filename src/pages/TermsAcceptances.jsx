@@ -21,6 +21,21 @@ const TermsAcceptances = () => {
         fetchRecords();
     }, []);
 
+    const handleDownload = async (id, subdomain) => {
+        const token = localStorage.getItem('adminToken');
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.aapnaestore.com'}/api/admin/terms-acceptances/${id}/download`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) { alert('Download failed'); return; }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `terms-agreement-${subdomain}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     const fetchRecords = async () => {
         try {
             const result = await adminTermsAPI.getAcceptances();
@@ -55,6 +70,7 @@ const TermsAcceptances = () => {
                                     <th style={styles.th}>Terms Version</th>
                                     <th style={styles.th}>Accepted At</th>
                                     <th style={styles.th}>IP Address</th>
+                                    <th style={styles.th}>Agreement</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -71,6 +87,12 @@ const TermsAcceptances = () => {
                                         <td style={styles.td}><code style={styles.code}>{r.terms_version}</code></td>
                                         <td style={styles.td}>{new Date(r.accepted_at).toLocaleString('en-IN')}</td>
                                         <td style={styles.td}>{r.ip_address || '—'}</td>
+                                        <td style={styles.td}>
+                                            <button onClick={() => handleDownload(r.id, r.subdomain)}
+                                                style={{ padding: '5px 12px', background: '#006d2f', color: '#fff', border: 'none', borderRadius: '7px', cursor: 'pointer', fontSize: '12px', fontWeight: 700 }}>
+                                                ⬇ Download
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
