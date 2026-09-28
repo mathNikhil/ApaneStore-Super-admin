@@ -121,18 +121,30 @@ const Revenue = () => {
     }
   };
   const handlePopupDownload = () => { const s = invoicePopup; setInvoicePopup(null); doDownload(s, invoiceFields); };
-  const handleDownload = (sub) => {
-    // Merge subscription fields with tenant profile fields as fallback
-    const merged = {
-      tenant_business_name: sub.tenant_business_name || sub.tenant_business_name_profile || '',
-      tenant_gstin: sub.tenant_gstin || sub.tenant_gst_number_profile || '',
-      tenant_state: sub.tenant_state || sub.tenant_state_profile || '',
-      tenant_address: sub.tenant_address || sub.tenant_address_profile || '',
-    };
-    if (!merged.tenant_business_name || !merged.tenant_state) {
-      setInvoiceFields(merged);
+  const handleDownload = async (sub) => {
+    const token = localStorage.getItem('adminToken');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/tenant-invoice-details/${sub.tenant_id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const d = await res.json();
+      const t = d.success ? d.data : {};
+      const fields = {
+        tenant_business_name: t.business_name || t.company_name || '',
+        tenant_gstin: t.gstin || '',
+        tenant_state: t.state || '',
+        tenant_address: t.address || ''
+      };
+      if (!fields.tenant_business_name || !fields.tenant_state) {
+        setInvoiceFields(fields);
+        setInvoicePopup(sub);
+      } else {
+        doDownload(sub, fields);
+      }
+    } catch {
+      setInvoiceFields({ tenant_business_name: '', tenant_gstin: '', tenant_state: '', tenant_address: '' });
       setInvoicePopup(sub);
-    } else { doDownload(sub, merged); }
+    }
   };
 
 
