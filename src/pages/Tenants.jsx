@@ -59,6 +59,22 @@ const Tenants = () => {
         }
     };
 
+    const handleImpersonate = async (tenantId, tenantName) => {
+        const token = localStorage.getItem('adminToken');
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.aapnaestore.com'}/api/admin/impersonate/${tenantId}`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const d = await res.json();
+            if (d.success) {
+                window.open(`https://aapnaestore.com?impersonate=${d.data.token}`, '_blank');
+            } else {
+                alert('Failed to impersonate: ' + d.error);
+            }
+        } catch(e) { alert('Error: ' + e.message); }
+    };
+
     const filteredTenants = tenants.filter(tenant => {
         const matchSearch = tenant.company_name?.toLowerCase().includes(search.toLowerCase()) ||
                            tenant.email?.toLowerCase().includes(search.toLowerCase()) ||
