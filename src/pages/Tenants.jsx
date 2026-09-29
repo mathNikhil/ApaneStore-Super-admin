@@ -152,6 +152,12 @@ const Tenants = () => {
                                             </span>
                                         </td>
                                         <td style={styles.td}>
+                                            <button
+                                                style={{ marginRight: 6, padding: '4px 10px', background: '#e8f5e9', color: '#006d2f', border: '1px solid #006d2f', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 700 }}
+                                                onClick={() => handleImpersonate(tenant.id, tenant.company_name)}
+                                            >
+                                                🔑 Login
+                                            </button>
                                             <button 
                                                 style={styles.btnWarning}
                                                 onClick={() => handleToggleStatus(tenant.id, tenant.status)}
