@@ -416,6 +416,51 @@ const StoreDetail = () => {
                         </div>
                     </div>
 
+                    {/* Video Upload Toggle */}
+                    <div style={styles.panelSection}>
+                        <h4>🎬 Product Video Upload</h4>
+                        <div style={{ background: '#f8f9fa', borderRadius: '12px', padding: '16px', marginTop: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div>
+                                    <div style={{ fontWeight: '600', fontSize: '14px', color: '#1a1a2e' }}>
+                                        Allow Video Uploads
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                                        Tenants can upload 1 short video per product (MP4, max 3 seconds, 5MB after compression)
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={async () => {
+                                        const newVal = !store.video_enabled;
+                                        try {
+                                            const token = localStorage.getItem('adminToken');
+                                            const res = await fetch(`${API}/api/admin/stores/${store.id}/video-toggle`, {
+                                                method: 'PUT',
+                                                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ video_enabled: newVal })
+                                            });
+                                            const data = await res.json();
+                                            if (data.success) setStore(prev => ({ ...prev, video_enabled: newVal }));
+                                            else alert('Failed to update: ' + (data.error || 'Unknown error'));
+                                        } catch(e) { alert('Error: ' + e.message); }
+                                    }}
+                                    style={{
+                                        padding: '8px 20px', border: 'none', borderRadius: '8px',
+                                        fontWeight: '600', fontSize: '13px', cursor: 'pointer',
+                                        background: store.video_enabled ? '#16a34a' : '#6b7280',
+                                        color: '#fff', minWidth: '90px'
+                                    }}>
+                                    {store.video_enabled ? '✅ Enabled' : '⬜ Disabled'}
+                                </button>
+                            </div>
+                            {store.video_used_bytes > 0 && (
+                                <div style={{ marginTop: '10px', fontSize: '12px', color: '#6b7280' }}>
+                                    Video storage used: {(store.video_used_bytes / 1024 / 1024).toFixed(2)} MB
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Trial Management */}
                     <div style={styles.panelSection}>
                         <h4>🧪 Trial Management</h4>
