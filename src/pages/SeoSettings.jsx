@@ -54,7 +54,7 @@ const SeoSettings = () => {
 
     const styles = {
         container: { display: 'flex', minHeight: '100vh', background: '#f8fafc', fontFamily: 'Inter, sans-serif' },
-        main: { flex: 1, padding: '32px', maxWidth: '800px' },
+        main: { flex: 1, padding: '32px', maxWidth: '800px', marginLeft: '220px' },
         title: { fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '8px' },
         subtitle: { color: '#64748b', marginBottom: '32px', fontSize: '14px' },
         card: { background: '#fff', borderRadius: '12px', padding: '24px', marginBottom: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
