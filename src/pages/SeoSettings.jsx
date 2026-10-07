@@ -30,7 +30,17 @@ const SeoSettings = () => {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
             });
             const data = await res.json();
-            if (data.success) setSettings(data.data);
+            if (data.success && data.data) {
+                setSettings({
+                    title: data.data.title || '',
+                    description: data.data.description || '',
+                    ogDescription: data.data.ogDescription || '',
+                    keywords: data.data.keywords || '',
+                    ogImage: data.data.ogImage || '',
+                    siteUrl: data.data.siteUrl || 'https://aapnaestore.com',
+                    siteName: data.data.siteName || 'AapnaEstore'
+                });
+            }
         } catch(e) { console.error(e); }
         setLoading(false);
     };
