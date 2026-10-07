@@ -25,6 +25,7 @@ const Sidebar = () => {
         { path: '/terms-acceptances', icon: '📄', label: 'Terms Acceptances' },
         { path: '/revenue', icon: '📈', label: 'Revenue' },
         { path: '/billing-settings', icon: '🧾', label: 'Billing Settings' },
+        { path: '/seo-settings', icon: '🔍', label: 'SEO & SMO Settings' },
     ];
 
     return (

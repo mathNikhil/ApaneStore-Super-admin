@@ -434,7 +434,7 @@ const StoreDetail = () => {
                                         const newVal = !store.video_enabled;
                                         try {
                                             const token = localStorage.getItem('adminToken');
-                                            const res = await fetch(`${API}/api/admin/stores/${store.id}/video-toggle`, {
+                                            const res = await fetch(`https://api.aapnaestore.com/api/admin/stores/${store.id}/video-toggle`, {
                                                 method: 'PUT',
                                                 headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
                                                 body: JSON.stringify({ video_enabled: newVal })

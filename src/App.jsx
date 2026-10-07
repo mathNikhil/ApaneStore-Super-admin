@@ -11,6 +11,7 @@ import PaymentGateway from './pages/PaymentGateway';
 import TermsAcceptances from './pages/TermsAcceptances';
 import Revenue from './pages/Revenue';
 import BillingSettings from './pages/BillingSettings';
+import SeoSettings from './pages/SeoSettings';
 import WhatsAppMarket from './pages/WhatsAppMarket';
 
 const App = () => {
@@ -58,6 +59,7 @@ const App = () => {
                 />
                 <Route path="/revenue" element={isAuthenticated ? <Revenue /> : <Navigate to="/login" />} />
                 <Route path="/billing-settings" element={isAuthenticated ? <BillingSettings /> : <Navigate to="/login" />} />
+                <Route path="/seo-settings" element={isAuthenticated ? <SeoSettings /> : <Navigate to="/login" />} />
                 <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>
         </BrowserRouter>
