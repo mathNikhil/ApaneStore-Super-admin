@@ -560,8 +560,7 @@ const PricingPlans = () => {
                 </div>
 
             {/* QR Scanner Pricing */}
-            <div style={styles.main}>
-                <div style={{ ...styles.groupCard, maxWidth: '900px' }}>
+            <div style={{ ...styles.groupCard, maxWidth: '900px', marginTop: '24px', marginBottom: '32px' }}>
                     <div style={styles.groupHeader}>
                         <h2 style={{ fontSize: '17px', fontWeight: '700', color: '#1a1a2e', margin: '0 0 4px' }}>📱 QR Scanner Pricing</h2>
                         <p style={{ fontSize: '13px', color: '#8e9eab', margin: 0 }}>
@@ -603,7 +602,6 @@ const PricingPlans = () => {
                     <div style={{ marginTop: '14px', background: '#f8f9fb', borderRadius: '8px', padding: '10px 14px', fontSize: '12px', color: '#556067' }}>
                         Example: Annual ₹10 → 364-day tenant charged ₹9.97 + 0% GST = ₹9.97 total
                     </div>
-                </div>
             </div>
 
             </div>
