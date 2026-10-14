@@ -560,12 +560,12 @@ const PricingPlans = () => {
                 </div>
 
             {/* QR Scanner Pricing */}
-            <div style={{ marginLeft: '260px', padding: '0 32px 32px' }}>
-                <div style={{ background: '#fff', borderRadius: '14px', padding: '24px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)', maxWidth: '520px' }}>
-                    <div style={{ marginBottom: '18px' }}>
+            <div style={styles.main}>
+                <div style={{ ...styles.groupCard, maxWidth: '900px' }}>
+                    <div style={styles.groupHeader}>
                         <h2 style={{ fontSize: '17px', fontWeight: '700', color: '#1a1a2e', margin: '0 0 4px' }}>📱 QR Scanner Pricing</h2>
                         <p style={{ fontSize: '13px', color: '#8e9eab', margin: 0 }}>
-                            Annual base price for QR service. Tenants are charged prorata based on their store's remaining publish days.
+                            Annual base price for QR service. Tenants are charged prorata based on their store's remaining publish days. GST can be 0% for testing.
                         </p>
                     </div>
                     {qrPricingLoading ? (
@@ -575,19 +575,19 @@ const PricingPlans = () => {
                             <div style={styles.fieldGroup}>
                                 <label style={styles.label}>Annual Price (₹)</label>
                                 <input
-                                    type="number" min="0" step="100"
+                                    type="number" min="0" step="1"
                                     value={qrPricing.annual_price}
                                     onChange={e => setQrPricing(p => ({ ...p, annual_price: e.target.value }))}
-                                    style={{ ...styles.input, width: '120px' }}
+                                    style={{ ...styles.input, width: '160px' }}
                                 />
                             </div>
                             <div style={styles.fieldGroup}>
-                                <label style={styles.label}>GST Rate (%)</label>
+                                <label style={styles.label}>GST Rate (%) — 0 allowed</label>
                                 <input
                                     type="number" min="0" max="100" step="0.5"
                                     value={qrPricing.gst_rate_percent}
                                     onChange={e => setQrPricing(p => ({ ...p, gst_rate_percent: e.target.value }))}
-                                    style={{ ...styles.input, width: '80px' }}
+                                    style={{ ...styles.input, width: '160px' }}
                                 />
                             </div>
                             <button
@@ -601,7 +601,7 @@ const PricingPlans = () => {
                         </div>
                     )}
                     <div style={{ marginTop: '14px', background: '#f8f9fb', borderRadius: '8px', padding: '10px 14px', fontSize: '12px', color: '#556067' }}>
-                        Example: Annual ₹6,000 → 180-day tenant charged ₹2,959 + 18% GST = ₹3,491 total
+                        Example: Annual ₹10 → 364-day tenant charged ₹9.97 + 0% GST = ₹9.97 total
                     </div>
                 </div>
             </div>
