@@ -49,6 +49,12 @@ const PricingPlans = () => {
         is_recommended:false, sort_order:0,
     });
 
+    // QR Pricing state
+    const [qrPricing, setQrPricing] = useState({ annual_price: '', gst_rate_percent: '' });
+    const [qrPricingLoading, setQrPricingLoading] = useState(true);
+    const [qrPricingSaving, setQrPricingSaving] = useState(false);
+    const [qrPricingMsg, setQrPricingMsg] = useState('');
+
     useEffect(() => {
         const token = localStorage.getItem('adminToken');
         if (!token) {
@@ -57,6 +63,7 @@ const PricingPlans = () => {
         }
         fetchPlans();
         fetchWaPlans();
+        fetchQRPricing();
         // Fetch discount settings
         fetch(`${API_BASE_URL}/api/admin/discount-settings`, { headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` } })
             .then(r => r.json()).then(d => { if (d.success) setDiscountSettings(d.data); }).catch(() => {});
@@ -65,6 +72,37 @@ const PricingPlans = () => {
             .then(r => r.json()).then(d => { if (d.success && d.data.draftStoreExpiryDays) setTrialDays(d.data.draftStoreExpiryDays); }).catch(() => {});
     }, []);
 
+
+    const fetchQRPricing = async () => {
+        setQrPricingLoading(true);
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/qr/admin/pricing`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
+            });
+            const data = await res.json();
+            if (data.annual_price !== undefined) {
+                setQrPricing({ annual_price: data.annual_price, gst_rate_percent: data.gst_rate_percent });
+            }
+        } catch (e) {}
+        setQrPricingLoading(false);
+    };
+
+    const saveQRPricing = async () => {
+        setQrPricingSaving(true);
+        setQrPricingMsg('');
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/qr/admin/pricing`, {
+                method: 'PUT',
+                headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ annual_price: parseFloat(qrPricing.annual_price), gst_rate_percent: parseFloat(qrPricing.gst_rate_percent) })
+            });
+            const data = await res.json();
+            if (data.success) setQrPricingMsg('✅ Saved');
+            else setQrPricingMsg('❌ ' + (data.error || 'Failed'));
+        } catch (e) { setQrPricingMsg('❌ Network error'); }
+        setQrPricingSaving(false);
+        setTimeout(() => setQrPricingMsg(''), 3000);
+    };
 
     const fetchWaPlans = async () => {
         setWaLoading(true);
@@ -520,6 +558,53 @@ const PricingPlans = () => {
                         );
                     })}
                 </div>
+
+            {/* QR Scanner Pricing */}
+            <div style={{ marginLeft: '260px', padding: '0 32px 32px' }}>
+                <div style={{ background: '#fff', borderRadius: '14px', padding: '24px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)', maxWidth: '520px' }}>
+                    <div style={{ marginBottom: '18px' }}>
+                        <h2 style={{ fontSize: '17px', fontWeight: '700', color: '#1a1a2e', margin: '0 0 4px' }}>📱 QR Scanner Pricing</h2>
+                        <p style={{ fontSize: '13px', color: '#8e9eab', margin: 0 }}>
+                            Annual base price for QR service. Tenants are charged prorata based on their store's remaining publish days.
+                        </p>
+                    </div>
+                    {qrPricingLoading ? (
+                        <div style={{ color: '#8e9eab', fontSize: '13px' }}>Loading...</div>
+                    ) : (
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px', flexWrap: 'wrap' }}>
+                            <div style={styles.fieldGroup}>
+                                <label style={styles.label}>Annual Price (₹)</label>
+                                <input
+                                    type="number" min="0" step="100"
+                                    value={qrPricing.annual_price}
+                                    onChange={e => setQrPricing(p => ({ ...p, annual_price: e.target.value }))}
+                                    style={{ ...styles.input, width: '120px' }}
+                                />
+                            </div>
+                            <div style={styles.fieldGroup}>
+                                <label style={styles.label}>GST Rate (%)</label>
+                                <input
+                                    type="number" min="0" max="100" step="0.5"
+                                    value={qrPricing.gst_rate_percent}
+                                    onChange={e => setQrPricing(p => ({ ...p, gst_rate_percent: e.target.value }))}
+                                    style={{ ...styles.input, width: '80px' }}
+                                />
+                            </div>
+                            <button
+                                onClick={saveQRPricing}
+                                disabled={qrPricingSaving}
+                                style={{ ...styles.saveBtn, opacity: qrPricingSaving ? 0.7 : 1 }}
+                            >
+                                {qrPricingSaving ? 'Saving...' : 'Save'}
+                            </button>
+                            {qrPricingMsg && <span style={{ fontSize: '13px', color: qrPricingMsg.startsWith('✅') ? '#1e8e3e' : '#c5221f' }}>{qrPricingMsg}</span>}
+                        </div>
+                    )}
+                    <div style={{ marginTop: '14px', background: '#f8f9fb', borderRadius: '8px', padding: '10px 14px', fontSize: '12px', color: '#556067' }}>
+                        Example: Annual ₹6,000 → 180-day tenant charged ₹2,959 + 18% GST = ₹3,491 total
+                    </div>
+                </div>
+            </div>
 
             </div>
         </div>
