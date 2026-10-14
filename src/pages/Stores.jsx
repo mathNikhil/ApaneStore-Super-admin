@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminStoreAPI } from '../services/adminApi';
+import API_BASE_URL from '../config/api';
 import Sidebar from '../components/Sidebar';
 
 const Stores = () => {
     const [stores, setStores] = useState([]);
+    const [qrStatusMap, setQrStatusMap] = useState({}); // storeId -> bool
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const navigate = useNavigate();
@@ -23,12 +25,28 @@ const Stores = () => {
             const result = await adminStoreAPI.getAll();
             if (result.success) {
                 setStores(result.data);
+                fetchQRStatuses(result.data);
             }
         } catch (error) {
             console.error('Error fetching stores:', error);
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchQRStatuses = async (storeList) => {
+        const entries = await Promise.all(
+            storeList.map(async (store) => {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/qr/status/${store.id}`);
+                    const data = await res.json();
+                    return [store.id, data.active === true];
+                } catch {
+                    return [store.id, false];
+                }
+            })
+        );
+        setQrStatusMap(Object.fromEntries(entries));
     };
 
     const filteredStores = stores.filter(store =>
@@ -69,6 +87,7 @@ const Stores = () => {
                                     <th style={styles.th}>Admin</th>
                                     <th style={styles.th}>Production</th>
                                     <th style={styles.th}>Delivery</th>
+                                    <th style={styles.th}>QR Scanner</th>
                                     <th style={styles.th}>Status</th>
                                     <th style={styles.th}>Action</th>
                                 </tr>
@@ -99,6 +118,15 @@ const Stores = () => {
                                                 <span style={permissions.delivery ? styles.panelEnabled : styles.panelDisabled}>
                                                     {permissions.delivery ? '✅' : '❌'}
                                                 </span>
+                                            </td>
+                                            <td style={styles.td}>
+                                                {qrStatusMap[store.id] === undefined ? (
+                                                    <span style={styles.qrLoading}>…</span>
+                                                ) : (
+                                                    <span style={qrStatusMap[store.id] ? styles.qrActive : styles.qrInactive}>
+                                                        {qrStatusMap[store.id] ? '📱 Active' : 'Inactive'}
+                                                    </span>
+                                                )}
                                             </td>
                                             <td style={styles.td}>
                                                 <span style={{
@@ -142,6 +170,9 @@ const styles = {
     panelDisabled: { padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '600', background: 'rgba(231,76,60,0.15)', color: '#e74c3c' },
     btnPrimary: { padding: '6px 14px', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', background: '#667eea', color: '#fff', cursor: 'pointer' },
     loading: { textAlign: 'center', padding: '40px', color: '#666' },
+    qrActive: { padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '600', background: 'rgba(46,213,115,0.15)', color: '#2ecc71', display: 'inline-block' },
+    qrInactive: { padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '600', background: 'rgba(142,158,171,0.15)', color: '#8e9eab', display: 'inline-block' },
+    qrLoading: { color: '#ccc', fontSize: '14px' },
 };
 
 export default Stores;
