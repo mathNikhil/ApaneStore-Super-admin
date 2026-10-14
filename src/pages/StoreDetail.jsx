@@ -18,7 +18,10 @@ const StoreDetail = () => {
     const [extensionRequests, setExtensionRequests] = useState([]);
     const [extDays, setExtDays] = useState({});
     const [extLoading, setExtLoading] = useState({});
+    const [qrActive, setQrActive] = useState(false);
+    const [qrLoading, setQrLoading] = useState(false);
     const navigate = useNavigate();
+    const API = 'https://api.aapnaestore.com';
 
     useEffect(() => {
         const token = localStorage.getItem('adminToken');
@@ -32,7 +35,6 @@ const StoreDetail = () => {
     const fetchStoreDetails = async () => {
         try {
             const token = localStorage.getItem('adminToken');
-            const API = 'https://api.aapnaestore.com';
             const [storeResult, panelResult, extResult] = await Promise.all([
                 adminStoreAPI.getById(id),
                 adminPanelAPI.getStorePanels(id),
@@ -46,10 +48,14 @@ const StoreDetail = () => {
                 setExtensionRequests(extResult.data.filter(r => String(r.store_id) === String(id)));
             }
             // Fetch storage info
-            const storageRes = await fetch(`https://api.aapnaestore.com/api/admin/stores/${id}/storage`, {
+            const storageRes = await fetch(`${API}/api/admin/stores/${id}/storage`, {
                 headers: { Authorization: `Bearer ${token}` }
             }).then(r => r.json()).catch(() => null);
             if (storageRes?.success) setStorage(storageRes.data);
+
+            // Fetch QR status (public endpoint — no auth needed)
+            const qrRes = await fetch(`${API}/api/qr/status/${id}`).then(r => r.json()).catch(() => ({ active: false }));
+            setQrActive(qrRes.active === true);
         } catch (error) {
             console.error('Error fetching store details:', error);
         } finally {
@@ -166,6 +172,28 @@ const StoreDetail = () => {
             if (data.success) { alert('✅ Rejected.'); fetchStoreDetails(); }
         } catch (e) { alert('❌ Error'); }
         finally { setExtLoading(prev => ({ ...prev, [requestId]: false })); }
+    };
+
+    const handleToggleQR = async () => {
+        setQrLoading(true);
+        try {
+            const token = localStorage.getItem('adminToken');
+            const endpoint = qrActive ? `${API}/api/qr/admin/deactivate/${id}` : `${API}/api/qr/admin/activate/${id}`;
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            if (data.success) {
+                setQrActive(data.active);
+            } else {
+                alert('❌ ' + (data.error || 'Failed to update QR status'));
+            }
+        } catch (e) {
+            alert('❌ Error updating QR status');
+        } finally {
+            setQrLoading(false);
+        }
     };
 
     if (loading) {
@@ -458,6 +486,43 @@ const StoreDetail = () => {
                                     Video storage used: {(store.video_used_bytes / 1024 / 1024).toFixed(2)} MB
                                 </div>
                             )}
+                        </div>
+                    </div>
+
+                    {/* QR Scanner */}
+                    <div style={styles.panelSection}>
+                        <h4>📱 QR Scanner</h4>
+                        <div style={{ background: '#f8f9fa', borderRadius: '12px', padding: '16px', marginTop: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div>
+                                    <div style={{ fontWeight: '600', fontSize: '14px', color: '#1a1a2e' }}>
+                                        QR Scanner Service
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                                        Allow staff to scan product QR codes in-store to add items directly to customer cart
+                                    </div>
+                                    <div style={{ marginTop: '6px' }}>
+                                        <span style={{
+                                            padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600',
+                                            background: qrActive ? 'rgba(46,213,115,0.15)' : 'rgba(142,158,171,0.15)',
+                                            color: qrActive ? '#2ecc71' : '#8e9eab'
+                                        }}>
+                                            {qrActive ? '📱 Active' : 'Inactive'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={handleToggleQR}
+                                    disabled={qrLoading}
+                                    style={{
+                                        padding: '8px 20px', border: 'none', borderRadius: '8px',
+                                        fontWeight: '600', fontSize: '13px', cursor: 'pointer',
+                                        background: qrActive ? '#e74c3c' : '#25D366',
+                                        color: '#fff', minWidth: '110px', opacity: qrLoading ? 0.6 : 1
+                                    }}>
+                                    {qrLoading ? '...' : qrActive ? '🔴 Deactivate' : '✅ Activate'}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
