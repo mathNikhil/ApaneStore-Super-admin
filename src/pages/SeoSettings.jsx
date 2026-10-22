@@ -14,6 +14,7 @@ const SeoSettings = () => {
     const [keywords, setKeywords] = useState('');
     const [ogImage, setOgImage] = useState('');
     const [siteName, setSiteName] = useState('');
+    const [marketingUrl, setMarketingUrl] = useState('https://aapnaestore.com/profile/aboutus');
 
     useEffect(() => {
         const token = localStorage.getItem('adminToken');
@@ -32,6 +33,7 @@ const SeoSettings = () => {
                 setKeywords(data.data.keywords || '');
                 setOgImage(data.data.ogImage || '');
                 setSiteName(data.data.siteName || '');
+                setMarketingUrl(data.data.marketingUrl || 'https://aapnaestore.com/profile/aboutus');
             }
         })
         .catch(e => console.error('Fetch error:', e));
@@ -47,7 +49,7 @@ const SeoSettings = () => {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ title, description, ogDescription, keywords, ogImage, siteName, siteUrl: 'https://aapnaestore.com' })
+            body: JSON.stringify({ title, description, ogDescription, keywords, ogImage, siteName, siteUrl: 'https://aapnaestore.com', marketingUrl })
         })
         .then(r => r.json())
         .then(data => {
@@ -71,7 +73,7 @@ const SeoSettings = () => {
                     <h2 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>Google Search Preview</h2>
                     <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
                         <div style={{ fontSize: '18px', color: '#1a0dab', marginBottom: '4px' }}>{title || 'Page Title'}</div>
-                        <div style={{ fontSize: '13px', color: '#006621', marginBottom: '4px' }}>https://aapnaestore.com</div>
+                        <div style={{ fontSize: '13px', color: '#006621', marginBottom: '4px' }}>{marketingUrl || 'https://aapnaestore.com'}</div>
                         <div style={{ fontSize: '13px', color: '#4d5156' }}>{description || 'Meta description will appear here'}</div>
                     </div>
                 </div>
@@ -125,6 +127,31 @@ const SeoSettings = () => {
                         <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>Site Name</label>
                         <input value={siteName} onChange={e => setSiteName(e.target.value)}
                             style={{ width: '100%', padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+
+                    <div style={{ marginBottom: '16px' }}>
+                        <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
+                            Marketing Page URL
+                            <span style={{ marginLeft: '8px', fontSize: '11px', background: '#dbeafe', color: '#1d4ed8', padding: '2px 7px', borderRadius: '4px', fontWeight: '600' }}>Shareable Link</span>
+                        </label>
+                        <input value={marketingUrl} onChange={e => setMarketingUrl(e.target.value)}
+                            placeholder="https://aapnaestore.com/profile/aboutus"
+                            style={{ width: '100%', padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                        <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>
+                            This URL is used in Open Graph tags when someone shares your link on WhatsApp, Twitter, or Facebook.
+                        </div>
+                        {marketingUrl && (
+                            <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <a href={marketingUrl} target="_blank" rel="noreferrer"
+                                    style={{ fontSize: '12px', color: '#2563eb', textDecoration: 'none' }}>
+                                    🔗 {marketingUrl}
+                                </a>
+                                <button onClick={() => navigator.clipboard?.writeText(marketingUrl)}
+                                    style={{ fontSize: '11px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', color: '#64748b' }}>
+                                    Copy
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
