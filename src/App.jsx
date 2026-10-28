@@ -13,6 +13,7 @@ import Revenue from './pages/Revenue';
 import BillingSettings from './pages/BillingSettings';
 import SeoSettings from './pages/SeoSettings';
 import WhatsAppMarket from './pages/WhatsAppMarket';
+import PlatformCoupons from './pages/PlatformCoupons';
 
 const App = () => {
     const isAuthenticated = !!localStorage.getItem('adminToken');
@@ -60,6 +61,7 @@ const App = () => {
                 <Route path="/revenue" element={isAuthenticated ? <Revenue /> : <Navigate to="/login" />} />
                 <Route path="/billing-settings" element={isAuthenticated ? <BillingSettings /> : <Navigate to="/login" />} />
                 <Route path="/seo-settings" element={isAuthenticated ? <SeoSettings /> : <Navigate to="/login" />} />
+                <Route path="/platform-coupons" element={isAuthenticated ? <PlatformCoupons /> : <Navigate to="/login" />} />
                 <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>
         </BrowserRouter>

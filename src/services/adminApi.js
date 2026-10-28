@@ -74,3 +74,13 @@ export const adminPricingAPI = {
 export const adminTermsAPI = {
     getAcceptances: () => apiRequest('/api/admin/terms-acceptances'),
 };
+
+// Platform Coupons
+export const platformCouponsAPI = {
+    getAll:         ()       => apiRequest('/api/admin/platform-coupons'),
+    create:         (data)   => apiRequest('/api/admin/platform-coupons', 'POST', data),
+    disable:        (id)     => apiRequest(`/api/admin/platform-coupons/${id}/disable`, 'PATCH'),
+    remove:         (id)     => apiRequest(`/api/admin/platform-coupons/${id}`, 'DELETE'),
+    getClaims:      (id)     => apiRequest(`/api/admin/platform-coupons/${id}/claims`),
+    claimForStore:  (storeId)=> apiRequest(`/api/admin/platform-coupons/claim-for-store/${storeId}`, 'POST'),
+};

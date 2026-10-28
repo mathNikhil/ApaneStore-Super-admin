@@ -26,6 +26,7 @@ const Sidebar = () => {
         { path: '/revenue', icon: '📈', label: 'Revenue' },
         { path: '/billing-settings', icon: '🧾', label: 'Billing Settings' },
         { path: '/seo-settings', icon: '🔍', label: 'SEO & SMO Settings' },
+        { path: '/platform-coupons', icon: '🎟️', label: 'Platform Coupons' },
     ];
 
     return (
