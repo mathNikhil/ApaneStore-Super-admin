@@ -90,6 +90,8 @@ const Revenue = () => {
       count: subscriptions.length,
       waCount: waOrders.length,
       waRevenue,
+      waBase,
+      waGst,
     };
   }, [subscriptions, waOrders]);
 
@@ -326,7 +328,7 @@ const Revenue = () => {
               <table style={{...styles.table,minWidth:700}}>
                 <thead>
                   <tr style={styles.thead}>
-                    {['Tenant','Plan','Paid On','Base (₹)','GST %','GST (₹)','Total (₹)','Invoice'].map(h=>(
+                    {['Tenant','Plan','Paid On','Base (₹)','GST %','GST (₹)','Coupon','Final Paid (₹)','Invoice'].map(h=>(
                       <th key={h} style={styles.th}>{h}</th>
                     ))}
                   </tr>
@@ -366,12 +368,41 @@ const Revenue = () => {
                         <td style={{...styles.td,textAlign:'right'}}>₹{base.toFixed(2)}</td>
                         <td style={{...styles.td,textAlign:'center'}}>{gstRate}%</td>
                         <td style={{...styles.td,textAlign:'right',color:'#f59e0b',fontWeight:500}}>₹{gst.toFixed(2)}</td>
+                        <td style={styles.td}>
+                          {order.platform_coupon_code ? (
+                            <div>
+                              <span style={{background:'#dcfce7',color:'#166534',fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:'999px',display:'inline-block'}}>
+                                🏷 {order.platform_coupon_code}
+                              </span>
+                              {order.platform_coupon_discount && (
+                                <div style={{fontSize:11,color:'#ef4444',fontWeight:600,marginTop:2}}>
+                                  -₹{fmt(order.platform_coupon_discount)}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span style={{color:'#cbd5e1',fontSize:11}}>—</span>
+                          )}
+                        </td>
                         <td style={{...styles.td,textAlign:'right',fontWeight:700,color:'#006d2f'}}>₹{total.toFixed(2)}</td>
                         <td style={styles.td}><button onClick={downloadWA} style={styles.dlBtn}>⬇ PDF</button></td>
                       </tr>
                     );
                   })}
                 </tbody>
+                <tfoot>
+                  <tr style={{background:'#1a1a2e', color:'#fff'}}>
+                    <td colSpan={3} style={{...styles.td, fontWeight:700, color:'#fff'}}>
+                      GRAND TOTAL ({summary.waCount} subscriptions)
+                    </td>
+                    <td style={{...styles.td, textAlign:'right', fontWeight:700, color:'#fff'}}>₹{fmt(summary.waBase)}</td>
+                    <td style={styles.td}></td>
+                    <td style={{...styles.td, textAlign:'right', fontWeight:700, color:'#f59e0b'}}>₹{fmt(summary.waGst)}</td>
+                    <td style={styles.td}></td>
+                    <td style={{...styles.td, textAlign:'right', fontWeight:700, color:'#25D366', fontSize:16}}>₹{fmt(summary.waRevenue)}</td>
+                    <td style={styles.td}></td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>
