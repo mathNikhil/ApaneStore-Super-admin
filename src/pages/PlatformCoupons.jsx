@@ -20,9 +20,21 @@ const badge = (status) => {
     );
 };
 
+const todayLocal = () => {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+};
+const defaultEnd = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+};
+
 const emptyForm = {
     name: '', code: '', unit: 'percent', value: '', min_order_value: '',
-    max_stores: '', validity_days: 30, max_uses_per_store: '',
+    max_stores: '', start_at: todayLocal(), end_at: defaultEnd(),
     trigger_type: 'store_publish',
 };
 
@@ -63,6 +75,12 @@ export default function PlatformCoupons() {
         if (!form.name.trim() || !form.code.trim() || !form.value) {
             setErr('Name, code and discount value are required.'); return;
         }
+        if (!form.start_at || !form.end_at) {
+            setErr('Start date and end date are required.'); return;
+        }
+        if (new Date(form.end_at) <= new Date(form.start_at)) {
+            setErr('End date must be after start date.'); return;
+        }
         setSaving(true);
         const payload = {
             name: form.name.trim(),
@@ -71,8 +89,8 @@ export default function PlatformCoupons() {
             value: parseFloat(form.value),
             min_order_value: parseFloat(form.min_order_value) || 0,
             max_stores: form.max_stores ? parseInt(form.max_stores) : null,
-            validity_days: parseInt(form.validity_days) || 30,
-            max_uses_per_store: form.max_uses_per_store ? parseInt(form.max_uses_per_store) : null,
+            start_at: new Date(form.start_at).toISOString(),
+            end_at: new Date(form.end_at).toISOString(),
             trigger_type: form.trigger_type,
         };
         const res = await platformCouponsAPI.create(payload);
@@ -134,7 +152,7 @@ export default function PlatformCoupons() {
                         <table style={s.table}>
                             <thead>
                                 <tr>
-                                    {['Name','Code','Discount','For','Min Order','Validity','Stores','Status','Actions'].map(h => (
+                                    {['Name','Code','Discount','For','Min Order','Valid From → To','Tenants','Status','Actions'].map(h => (
                                         <th key={h} style={s.th}>{h}</th>
                                     ))}
                                 </tr>
@@ -162,11 +180,21 @@ export default function PlatformCoupons() {
                                             </span>
                                         </td>
                                         <td style={s.td}>{c.min_order_value > 0 ? `₹${c.min_order_value}` : '—'}</td>
-                                        <td style={s.td}>{c.validity_days} days</td>
+                                        <td style={s.td}>
+                                            <div style={{ fontSize:12, lineHeight:1.5 }}>
+                                                <div style={{ color:'#64748b' }}>
+                                                    {c.start_at ? new Date(c.start_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—'}
+                                                </div>
+                                                <div style={{ color:'#94a3b8', fontSize:11 }}>↓</div>
+                                                <div style={{ color: c.end_at && new Date(c.end_at) < new Date() ? '#ef4444' : '#1e293b' }}>
+                                                    {c.end_at ? new Date(c.end_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—'}
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td style={s.td}>
                                             <button style={s.linkBtn} onClick={() => openClaims(c)}>
                                                 {c.claimed_count_live ?? c.claimed_count}
-                                                {c.max_stores ? ` / ${c.max_stores}` : ''} stores
+                                                {c.max_stores ? ` / ${c.max_stores}` : ''} tenants
                                             </button>
                                         </td>
                                         <td style={s.td}>{badge(c.status)}</td>
@@ -234,20 +262,20 @@ export default function PlatformCoupons() {
                                     onChange={e => set('min_order_value', e.target.value)}
                                     placeholder="0 = no minimum" />
 
-                                <Label>Validity (days from store publish)</Label>
-                                <input style={s.input} type="number" min="1" value={form.validity_days}
-                                    onChange={e => set('validity_days', e.target.value)}
-                                    placeholder="30" />
+                                <Label>Coupon Valid From *</Label>
+                                <input style={s.input} type="datetime-local" value={form.start_at}
+                                    onChange={e => set('start_at', e.target.value)} />
 
-                                <Label>Max Stores That Can Claim</Label>
+                                <Label>Coupon Valid Until *</Label>
+                                <input style={s.input} type="datetime-local" value={form.end_at}
+                                    onChange={e => set('end_at', e.target.value)} />
+                                <div style={s.hint}>Tenants can only apply this coupon within this date range</div>
+
+                                <Label>Max Tenants That Can Use</Label>
                                 <input style={s.input} type="number" min="1" value={form.max_stores}
                                     onChange={e => set('max_stores', e.target.value)}
                                     placeholder="Leave empty = unlimited" />
-
-                                <Label>Max Uses Per Store</Label>
-                                <input style={s.input} type="number" min="1" value={form.max_uses_per_store}
-                                    onChange={e => set('max_uses_per_store', e.target.value)}
-                                    placeholder="Leave empty = unlimited" />
+                                <div style={s.hint}>Each tenant can use this coupon once per {form.trigger_type === 'wa_market' ? 'WA Market subscription' : form.trigger_type === 'both' ? 'publish (once per store/WA)' : 'store publish'}</div>
 
                                 <div style={{ marginTop:24, display:'flex', gap:12 }}>
                                     <button style={s.btnPrimary} onClick={handleCreate} disabled={saving}>
