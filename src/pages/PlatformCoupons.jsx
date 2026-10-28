@@ -23,6 +23,13 @@ const badge = (status) => {
 const emptyForm = {
     name: '', code: '', unit: 'percent', value: '', min_order_value: '',
     max_stores: '', validity_days: 30, max_uses_per_store: '',
+    trigger_type: 'store_publish',
+};
+
+const TRIGGER_LABELS = {
+    store_publish: '🏪 Store Publish',
+    wa_market: '📲 WA Market',
+    both: '🌐 Both',
 };
 
 export default function PlatformCoupons() {
@@ -66,6 +73,7 @@ export default function PlatformCoupons() {
             max_stores: form.max_stores ? parseInt(form.max_stores) : null,
             validity_days: parseInt(form.validity_days) || 30,
             max_uses_per_store: form.max_uses_per_store ? parseInt(form.max_uses_per_store) : null,
+            trigger_type: form.trigger_type,
         };
         const res = await platformCouponsAPI.create(payload);
         setSaving(false);
@@ -108,7 +116,7 @@ export default function PlatformCoupons() {
                 <div style={s.header}>
                     <div>
                         <h1 style={s.title}>🎟️ Platform Coupons</h1>
-                        <p style={s.sub}>Create coupons that auto-distribute to tenant stores on publish</p>
+                        <p style={s.sub}>Create billing discount coupons for tenants — applied at their publish/subscription payment page</p>
                     </div>
                     <button style={s.btnPrimary} onClick={() => setShowForm(true)}>+ Create Coupon</button>
                 </div>
@@ -126,7 +134,7 @@ export default function PlatformCoupons() {
                         <table style={s.table}>
                             <thead>
                                 <tr>
-                                    {['Name','Code','Discount','Min Order','Validity','Stores','Status','Actions'].map(h => (
+                                    {['Name','Code','Discount','For','Min Order','Validity','Stores','Status','Actions'].map(h => (
                                         <th key={h} style={s.th}>{h}</th>
                                     ))}
                                 </tr>
@@ -145,6 +153,13 @@ export default function PlatformCoupons() {
                                             {c.unit === 'free_shipping'
                                                 ? 'Free Shipping'
                                                 : `${c.unit === 'flat' ? '₹' : ''}${c.value}${c.unit === 'percent' ? '%' : ''} off`}
+                                        </td>
+                                        <td style={s.td}>
+                                            <span style={{ fontSize:11, fontWeight:600, padding:'2px 8px', borderRadius:10,
+                                                background: c.trigger_type === 'both' ? 'rgba(99,102,241,0.1)' : c.trigger_type === 'wa_market' ? 'rgba(37,211,102,0.1)' : 'rgba(59,130,246,0.1)',
+                                                color: c.trigger_type === 'both' ? '#6366f1' : c.trigger_type === 'wa_market' ? '#16a34a' : '#2563eb' }}>
+                                                {TRIGGER_LABELS[c.trigger_type] || c.trigger_type}
+                                            </span>
                                         </td>
                                         <td style={s.td}>{c.min_order_value > 0 ? `₹${c.min_order_value}` : '—'}</td>
                                         <td style={s.td}>{c.validity_days} days</td>
@@ -189,6 +204,14 @@ export default function PlatformCoupons() {
                                 <input style={s.input} value={form.code} onChange={e => set('code', e.target.value.toUpperCase())}
                                     placeholder="e.g. LAUNCH20" />
                                 <div style={s.hint}>Store owners will share this code with their customers</div>
+
+                                <Label>Applies To *</Label>
+                                <select style={s.input} value={form.trigger_type} onChange={e => set('trigger_type', e.target.value)}>
+                                    <option value="store_publish">🏪 Store Publish only</option>
+                                    <option value="wa_market">📲 WA Market only</option>
+                                    <option value="both">🌐 Both (Store Publish + WA Market)</option>
+                                </select>
+                                <div style={s.hint}>Controls which payment page this coupon can be used on</div>
 
                                 <Label>Discount Type *</Label>
                                 <select style={s.input} value={form.unit} onChange={e => set('unit', e.target.value)}>
