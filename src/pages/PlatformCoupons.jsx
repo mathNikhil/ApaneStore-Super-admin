@@ -292,7 +292,7 @@ const Label = ({ children }) => (
 
 const styles = {
     layout:     { display:'flex', minHeight:'100vh', background:'#f8fafc' },
-    main:       { flex:1, padding:'32px 28px', maxWidth:1100 },
+    main:       { flex:1, padding:'32px 28px', maxWidth:1100, marginLeft:240 },
     header:     { display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:28 },
     title:      { fontSize:22, fontWeight:700, color:'#1e293b', margin:0 },
     sub:        { fontSize:13, color:'#8e9eab', margin:'4px 0 0' },
