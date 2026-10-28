@@ -88,6 +88,7 @@ const Stores = () => {
                                     <th style={styles.th}>Production</th>
                                     <th style={styles.th}>Delivery</th>
                                     <th style={styles.th}>QR Scanner</th>
+                                    <th style={styles.th}>Store Type</th>
                                     <th style={styles.th}>Status</th>
                                     <th style={styles.th}>Action</th>
                                 </tr>
@@ -127,6 +128,15 @@ const Stores = () => {
                                                         {qrStatusMap[store.id] ? '📱 Active' : 'Inactive'}
                                                     </span>
                                                 )}
+                                            </td>
+                                            <td style={styles.td}>
+                                                <span style={{
+                                                    ...styles.statusBadge,
+                                                    background: store.store_type === 'service' ? 'rgba(99,102,241,0.15)' : 'rgba(16,185,129,0.15)',
+                                                    color: store.store_type === 'service' ? '#6366f1' : '#10b981'
+                                                }}>
+                                                    {store.store_type === 'service' ? '🛎 Service' : '📦 Product'}
+                                                </span>
                                             </td>
                                             <td style={styles.td}>
                                                 <span style={{
