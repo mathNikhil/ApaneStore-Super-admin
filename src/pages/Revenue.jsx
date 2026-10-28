@@ -328,9 +328,15 @@ const Revenue = () => {
               <table style={{...styles.table,minWidth:700}}>
                 <thead>
                   <tr style={styles.thead}>
-                    {['Tenant','Plan','Paid On','Base (₹)','GST %','GST (₹)','Coupon','Final Paid (₹)','Invoice'].map(h=>(
-                      <th key={h} style={styles.th}>{h}</th>
-                    ))}
+                    <th style={styles.th}>Tenant</th>
+                    <th style={styles.th}>Plan</th>
+                    <th style={styles.th}>Paid On</th>
+                    <th style={{...styles.th, textAlign:'right'}}>Base (₹)</th>
+                    <th style={{...styles.th, textAlign:'center'}}>GST %</th>
+                    <th style={{...styles.th, textAlign:'right'}}>GST (₹)</th>
+                    <th style={styles.th}>Coupon</th>
+                    <th style={{...styles.th, textAlign:'right'}}>Final Paid (₹)</th>
+                    <th style={styles.th}>Invoice</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -395,11 +401,17 @@ const Revenue = () => {
                     <td colSpan={3} style={{...styles.td, fontWeight:700, color:'#fff'}}>
                       GRAND TOTAL ({summary.waCount} subscriptions)
                     </td>
+                    {/* col 4: Base (₹) */}
                     <td style={{...styles.td, textAlign:'right', fontWeight:700, color:'#fff'}}>₹{fmt(summary.waBase)}</td>
+                    {/* col 5: GST % — empty */}
                     <td style={styles.td}></td>
+                    {/* col 6: GST (₹) */}
                     <td style={{...styles.td, textAlign:'right', fontWeight:700, color:'#f59e0b'}}>₹{fmt(summary.waGst)}</td>
+                    {/* col 7: Coupon — empty */}
                     <td style={styles.td}></td>
+                    {/* col 8: Final Paid (₹) */}
                     <td style={{...styles.td, textAlign:'right', fontWeight:700, color:'#25D366', fontSize:16}}>₹{fmt(summary.waRevenue)}</td>
+                    {/* col 9: Invoice — empty */}
                     <td style={styles.td}></td>
                   </tr>
                 </tfoot>
