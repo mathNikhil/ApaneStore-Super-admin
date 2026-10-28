@@ -47,7 +47,7 @@ const Tenants = () => {
     };
 
     const handleDelete = async (id, name) => {
-        if (window.confirm(`⚠️ Are you sure you want to permanently delete "${name}"? This will remove ALL data!`)) {
+        if (window.confirm(`Are you sure you want to delete "${name}"?\n\nTheir account will be deactivated and they won't be able to log in. Revenue and payment records are preserved for compliance.`)) {
             try {
                 const result = await adminTenantAPI.delete(id);
                 if (result.success) {
