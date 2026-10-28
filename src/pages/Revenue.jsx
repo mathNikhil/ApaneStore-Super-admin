@@ -298,11 +298,12 @@ const Revenue = () => {
             </tbody>
             <tfoot>
               <tr style={{background:'#1a1a2e', color:'#fff'}}>
-                <td colSpan={7} style={{...styles.td, fontWeight:700, color:'#fff'}}>
+                <td colSpan={6} style={{...styles.td, fontWeight:700, color:'#fff'}}>
                   GRAND TOTAL ({summary.count} subscriptions)
                 </td>
                 <td style={{...styles.td, textAlign:'right', fontWeight:700, color:'#fff'}}>₹{fmt(summary.totalBase)}</td>
                 <td style={{...styles.td, textAlign:'right', fontWeight:700, color:'#f59e0b'}}>₹{fmt(summary.totalGst)}</td>
+                <td style={styles.td}></td>
                 <td style={{...styles.td, textAlign:'right', fontWeight:700, color:'#25D366', fontSize:16}}>₹{fmt(summary.totalRevenue)}</td>
                 <td style={styles.td}></td>
               </tr>
