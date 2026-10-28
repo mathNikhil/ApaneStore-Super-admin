@@ -225,7 +225,8 @@ const Revenue = () => {
                   {col:'valid_until', label:'Valid Until'},
                   {col:'base_amount', label:'Base (₹)'},
                   {col:'tax_amount', label:'GST (₹)'},
-                  {col:'total_amount', label:'Total (₹)'},
+                  {col:'platform_coupon_code', label:'Coupon'},
+                  {col:'total_amount', label:'Final Paid (₹)'},
                 ].map(({col, label}) => (
                   <th key={col} style={{...styles.th, cursor:'pointer', userSelect:'none'}} onClick={() => handleSort(col)}>
                     {label}<SortIcon col={col} sortCol={sortCol} sortDir={sortDir} />
@@ -265,6 +266,22 @@ const Revenue = () => {
                     </td>
                     <td style={{...styles.td, textAlign:'right', fontWeight:500}}>₹{fmt(base)}</td>
                     <td style={{...styles.td, textAlign:'right', color:'#f59e0b', fontWeight:500}}>₹{fmt(gst)}</td>
+                    <td style={styles.td}>
+                      {sub.platform_coupon_code ? (
+                        <div>
+                          <span style={{background:'#dcfce7', color:'#166534', fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:'999px', display:'inline-block'}}>
+                            🏷 {sub.platform_coupon_code}
+                          </span>
+                          {sub.platform_coupon_discount && (
+                            <div style={{fontSize:11, color:'#ef4444', fontWeight:600, marginTop:2}}>
+                              -₹{fmt(sub.platform_coupon_discount)}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span style={{color:'#cbd5e1', fontSize:11}}>—</span>
+                      )}
+                    </td>
                     <td style={{...styles.td, textAlign:'right', fontWeight:700, color:'#006d2f'}}>₹{fmt(total)}</td>
                     <td style={styles.td}>
                       <button
@@ -281,7 +298,7 @@ const Revenue = () => {
             </tbody>
             <tfoot>
               <tr style={{background:'#1a1a2e', color:'#fff'}}>
-                <td colSpan={6} style={{...styles.td, fontWeight:700, color:'#fff'}}>
+                <td colSpan={7} style={{...styles.td, fontWeight:700, color:'#fff'}}>
                   GRAND TOTAL ({summary.count} subscriptions)
                 </td>
                 <td style={{...styles.td, textAlign:'right', fontWeight:700, color:'#fff'}}>₹{fmt(summary.totalBase)}</td>
