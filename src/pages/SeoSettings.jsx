@@ -25,7 +25,6 @@ const SeoSettings = () => {
         })
         .then(r => r.json())
         .then(data => {
-            console.log('SEO data:', data);
             if (data.success && data.data) {
                 setTitle(data.data.title || '');
                 setDescription(data.data.description || '');
@@ -53,7 +52,6 @@ const SeoSettings = () => {
         })
         .then(r => r.json())
         .then(data => {
-            console.log('Save result:', data);
             if (data.success) { setSaved(true); setTimeout(() => setSaved(false), 3000); }
             else setError(data.error || 'Save failed');
         })
