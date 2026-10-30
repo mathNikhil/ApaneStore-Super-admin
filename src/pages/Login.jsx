@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { adminAuthAPI } from '../services/adminApi';
 
 const Login = () => {
-    const [email, setEmail] = useState('admin@apnaestore.com');
-    const [password, setPassword] = useState('Admin@123');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -68,7 +68,7 @@ const Login = () => {
                 </form>
 
                 <div style={styles.footer}>
-                    <small>Default: admin@apnaestore.com / Admin@123</small>
+                    <small>Contact your system administrator for access</small>
                 </div>
             </div>
         </div>
